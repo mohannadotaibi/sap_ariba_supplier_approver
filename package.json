@@ -1,0 +1,17 @@
+{
+  "name": "sap_ariba_supplier_approver",
+  "version": "1.0.0",
+  "description": "work-related electronjs script to speed up suppliers search and approval in SAP Ariba",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Mohannad F. Otaibi",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.0.1",
+    "nodemon": "^3.1.0"
+  }
+}
