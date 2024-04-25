@@ -8,34 +8,30 @@
   </head>
   
     <div>
-        <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
+      <h1>Hello from Electron renderer!</h1>
+      <p>👋</p>
+      <p id="info"></p>
     </div>
     <div>
-        <form id="form">   
+        <form id="form">
             <div>
                 <label for="auth-token">Auth Token</label>
-                <input type="text" name="auth-token" id="auth-token">
+                <input type="text" name="token" id="token" autocomplete="">
                 <small>Enter your auth token</small>
             </div>
             <!-- field for search of company by name -->
-            <div style="padding-top:15px;">
+            <div>
                 <label for="company-name">Company Name</label>
-                <input type="text" name="company-name" id="company-name">
+                <input type="text" name="company-name" id="company-name" autocomplete="">
                 <small>Enter company name</small>
             </div>
             <!-- field for search of company by symbol -->
-            <div>
-                <button type="submit">Submit</button>
+            <div> 
+                <button type="submit" id="submit">Submit</button>
                 <button type="reset">Reset</button>
             </div>
         </form>
     </div>
-    
-    
-
     
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>
