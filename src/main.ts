@@ -1,11 +1,10 @@
-import { app, BrowserWindow } from 'electron';
-import path from 'path';
 require('dotenv').config();
-
-
+import { ipcMain, app, BrowserWindow } from 'electron';
+import { searchSuppliers } from './api';
+import path from 'path';
 
 console.log('main.ts');
-console.log(process.env.TOKEN)
+console.log('env token', process.env.TOKEN)
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -50,8 +49,8 @@ app.on('activate', () => {
 
 
 // create the search-suppliers function that will be called from the preload.ts file
-const { ipcMain } = require('electron');
-ipcMain.on('search-suppliers', (event, token) => {
-  console.log(token);
-  event.reply('search-suppliers-reply', 'search-suppliers-reply');
+ipcMain.on('search-suppliers', async (event, supplier, token) => {
+  const suppliers = await searchSuppliers({keyword: supplier}, token);
+  console.log(suppliers)
+  event.reply('search-suppliers-reply', suppliers);
 });
