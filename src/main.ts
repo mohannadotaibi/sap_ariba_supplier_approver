@@ -47,10 +47,9 @@ app.on('activate', () => {
 });
 
 
-
 // create the search-suppliers function that will be called from the preload.ts file
 ipcMain.on('search-suppliers', async (event, supplier, token) => {
   const suppliers = await searchSuppliers({keyword: supplier}, token);
-  console.log(suppliers)
+  // console.log(suppliers)
   event.reply('search-suppliers-reply', suppliers);
 });
