@@ -2,21 +2,22 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
+    <meta http-equiv="Content-Security-Policy" content="">
+
+    <title>Hello World! </title>
 
   </head>
   <body>
-    <h1>Hello World!</h1>
+    <h1>ٍSupprover!</h1>
     <p>Welcome to your Electron application.</p>
     <input type="text" name="token" id="token" placeholder="Enter your token">
-    <input type="text" name="supplier" id="supplier" placeholder="Enter your supplier name">
+    <input type="text" name="supplier" id="supplier" value="Projacs Academy" placeholder="Enter your supplier name">
     <button id="submit">Submit</button>
     <hr>
     <h2>Output</h2>
-    <p id="output"></p>
-    <ul id="results-list">
-      
-    </ul>
+    <div id="output"></div>
+    <div id="results-table"></div>
+   
 
     <script type="module" src="/src/renderer.ts"></script>
   </body>

@@ -1,6 +1,6 @@
 
 
-const baseURL:string = 'https://s1.mn2.ariba.com/SM/rest';
+const baseURL = 'https://s1.mn2.ariba.com/SM/rest';
 
 const commonParams: paramsArray = {
     includeLegalAddress: true,
@@ -31,8 +31,6 @@ const commonParams: paramsArray = {
     isMQEnhancementFlow: false,
 
 };
-
-
 
 const commonHeaders = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',

@@ -1,10 +1,39 @@
-require('dotenv').config();
+import  Storage  from './utilities/storage';
 import { ipcMain, app, BrowserWindow } from 'electron';
 import { searchSuppliers } from './api';
 import path from 'path';
+import * as dotenv from "dotenv";
+
+const myStorage = new Storage('../../data.json');
+
+dotenv.config();
 
 console.log('main.ts');
 console.log('env token', process.env.TOKEN)
+
+
+ipcMain.on('save-inputs', async (event, data) => {
+  try{
+    await myStorage.save(data);
+    console.log('data written', data) 
+  }
+  catch (error) {
+    console.error('Failed to save inputs', error);
+  }
+  
+});
+ipcMain.on('load-inputs', async (event) => { 
+  try {
+    const data = await myStorage.load();
+    event.reply('load-inputs-reply', JSON.parse(JSON.stringify(data))); // Ensure data is serializable
+  } catch (error) {
+    console.error('Failed to send load inputs', error);
+    event.reply('load-inputs-reply', {}); // Send empty object on error 
+  }
+});
+
+
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -49,7 +78,10 @@ app.on('activate', () => {
 
 // create the search-suppliers function that will be called from the preload.ts file
 ipcMain.on('search-suppliers', async (event, supplier, token) => {
-  const suppliers = await searchSuppliers({keyword: supplier}, token);
-  // console.log(suppliers)
-  event.reply('search-suppliers-reply', suppliers);
+  try {
+    const suppliers = await searchSuppliers({keyword: supplier}, token);
+        event.reply('search-suppliers-reply', suppliers);
+    } catch (error) {
+        event.reply('search-suppliers-reply', { error: error.message });
+    }
 });
