@@ -1,4 +1,4 @@
-
+import logger from '../utilities/logger'
 
 const baseURL = 'https://s1.mn2.ariba.com/SM/rest';
 
@@ -62,9 +62,9 @@ const refreshToken = async (token: string) =>{
 
     if (response.ok) {
         token = response.headers.get('x-auth-token');
-        console.log('got new token', token)
+        logger.info('got new token', token)
     } else {
-        console.error('Failed to refresh token');
+        logger.error('Failed to refresh token');
     }
 }
 
@@ -73,7 +73,7 @@ const makeRequest = async (endpoint: string, params: any, token: string, request
     let urlSearchParams: any;
     
     if (urlParams) {
-        console.log('urlParams', urlParams);
+        logger.info('urlParams', urlParams);
         urlSearchParams = new URLSearchParams(urlParams); //urlParams.map((param: string | number) => `${param}=${params[param]}`).join('&');
     }
    
@@ -98,11 +98,11 @@ const makeRequest = async (endpoint: string, params: any, token: string, request
         if (!response.ok) {
             // if error code is 401 it means the token has expired
             if (response.status === 401) {
-                console.log('Token expired, refreshing...');
+                logger.info('Token expired, refreshing...');
                 throw new Error('TokenExpired');
             }
             else {
-                console.log(response);
+                logger.info(response);
                 throw new Error(`Error in ${endpoint}: ${response.status} ${response.statusText}`);
             }
         }
@@ -111,12 +111,10 @@ const makeRequest = async (endpoint: string, params: any, token: string, request
         return data;
     } 
     catch (error) {
-        console.error(`Error in ${endpoint}:`, error.message);
+        logger.error(`Error in ${endpoint}:`, error.message);
         throw error;
     }
 }
-
-
 
 const queryVendor = async (vendorId: string, token: string) => {
     const params = {}; //getSupplierParams({ smVendorIds: [vendorId] });
@@ -154,6 +152,39 @@ const queryRegistrations = async(vendorId: string, token:string ) => {
     return makeRequest('queryRegistration', params, token);
 }
 
+const getSupplierDetails = async(supplier, token)=> {
+    const vendorDetails = await queryVendor(supplier.smVendorId, token);
+    const registrations = await queryRegistrations(supplier.smVendorId, token);
+    const workspace = await getSMWorkspace(registrations.registrations[0].statusId, token);
+    const cleanWorkspaceInfo = cleanWorkspaceResponse(workspace.workspace);
+    const tasks = cleanWorkspaceInfo.tasks;
+    const registrationTaskId = tasks.find(task => task.documentName === "Supplier Registration Questionnaire").id;
+    const registrationDocumentId = tasks.find(task => task.documentName === "Supplier Registration Questionnaire").documentId;
+    const questionnaire = await deprecatedGetQuestionnaireIncludePrevious(registrationDocumentId, token);
+    
+    return {
+        supplier: supplier,
+        vendor: vendorDetails,
+        registrations: registrations,
+        workspace: workspace,
+        cleanWorkspaceInfo: cleanWorkspaceInfo,
+        tasks: tasks,
+        registrationTaskId: registrationTaskId,
+        questionnaire: questionnaire
+    };
+}
+
+const deprecatedGetQuestionnaireIncludePrevious = async (docId: string, token: string) => {
+    const params = {
+        "docId": docId,
+        "viewMode": "View",
+        "includePreviousResponse": "true",
+        "returnLatestDocIfArchived": "false"
+    };
+
+    return makeRequest('deprecatedGetQuestionnaireIncludePrevious', null, token, 'GET',params);
+}
+
 export const searchSuppliers = async (customParams: any, token: string) => {
     const params = getSupplierParams({ ...customParams });
     const searchResponse = await makeRequest('searchSuppliers', params, token);
@@ -167,29 +198,10 @@ export const searchSuppliers = async (customParams: any, token: string) => {
     return [];
 }
 
-
-async function getSupplierDetails(supplier, token) {
-    const vendorDetails = await queryVendor(supplier.smVendorId, token);
-    const registrations = await queryRegistrations(supplier.smVendorId, token);
-    const workspace = await getSMWorkspace(registrations.registrations[0].statusId, token);
-    const cleanWorkspaceInfo = cleanWorkspaceResponse(workspace.workspace);
-    const tasks = cleanWorkspaceInfo.tasks;
-    const registrationTaskId = tasks.find(task => task.documentName === "Supplier Registration Questionnaire").id;
-    
-    return {
-        supplier: supplier,
-        vendor: vendorDetails,
-        registrations: registrations,
-        workspace: workspace,
-        cleanWorkspaceInfo: cleanWorkspaceInfo,
-        tasks: tasks,
-        registrationTaskId: registrationTaskId,
-    };
-}
-
-
 export const approveVendor = async (taskId: string, token: string) => {
-    console.log('approving taskId ariba.ts', taskId);
+    // lets import the logger and use it
+    
+    logger.info('approving taskId ariba.ts', taskId);
     
     const params = {
         "taskId": taskId,
@@ -197,4 +209,3 @@ export const approveVendor = async (taskId: string, token: string) => {
     };
     return makeRequest('updateTask', params, token, 'POST');
 }
-

@@ -1,5 +1,11 @@
 # my-new-app
 
+## 0.3.0
+
+### Minor Changes
+
+- Feat: Add supplier info table
+
 ## 0.2.0
 
 ### Minor Changes

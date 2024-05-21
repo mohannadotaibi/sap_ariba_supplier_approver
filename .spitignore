@@ -1,4 +1,3 @@
-*.config.ts
 *.d.ts
 .eslintrc.json
 data.json
