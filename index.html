@@ -3,22 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="">
-
-    <title>Hello World! </title>
-
+    <title>Supprover</title>
   </head>
   <body>
-    <h1>ٍSupprover!</h1>
+    <div id="app"></div>
+    <h1>Supprover!</h1>
     <p>Welcome to your Electron application.</p>
-    <input type="text" name="token" id="token" placeholder="Enter your token">
-    <input type="text" name="supplier" id="supplier" value="Projacs Academy" placeholder="Enter your supplier name">
-    <button id="submit">Submit</button>
+    <div id="input-fields" style="text-align:center; display:flex; flex-direction:column">
+      <div style="display:flex; flex-direction:column">
+        <label for="token">Token</label>
+      <input type="text" name="token" id="token" placeholder="Enter your token">
+      </div>
+      <div style="display:flex; flex-direction:column; margin-bottom:14px">
+        <label for="supplier">Supplier</label>
+      <input type="text" name="supplier" id="supplier" value="Projacs Academy" placeholder="Enter your supplier name">
+      </div>
+      <button id="submit">Submit</button>
+    </div>
+    
+    
     <hr>
     <h2>Output</h2>
     <div id="output"></div>
     <div id="results-table"></div>
    
-
     <script type="module" src="/src/renderer.ts"></script>
   </body>
 </html>

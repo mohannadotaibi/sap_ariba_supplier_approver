@@ -90,3 +90,6 @@ typings/
 
 # Electron-Forge
 out/
+data.json
+dump.txt
+dump.json

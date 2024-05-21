@@ -3,33 +3,36 @@
 const baseURL = 'https://s1.mn2.ariba.com/SM/rest';
 
 const commonParams: paramsArray = {
-    includeLegalAddress: true,
+    activeType: "active",
+    batchSize: 5,
     categoryCode: [],
-    regionCode: [],
+    certCondition: {},
     departmentCode: [],
+    filterOutDisqualifiedMatrix: false,
+    includeFacet: true,
+    includeLegalAddress: false,
+    includeMatrix: false,
     includeOrderingAddresses: true,
     includeRemittanceAddresses: true,
-    purchasingUnitCodes: [],
-    realmName: "JCD",
-    smVendorIds: [],
-    filterOutDisqualifiedMatrix: false,
-    includeMatrix: false,
-    searchQualificationAndRegistrationStatusAsAWhole: false,
-    isErpIntegrated: null,
-    keyword: "",
-    qualificationStatus: [],
-    preferredLevel: [],
-    spqFilterAnswerRequests: [],
-    certCondition: {},
-    overallRiskScoreLevel: [],
-    smProcessStatus: [],
-    isFactory: false,
-    activeType: "active",
-    includeFacet: true,
-    mainVendorsOnly: true,
     isBulkQualification: false,
+    isErpIntegrated: null,
+    isFactory: false,
     isMQEnhancementFlow: false,
-
+    keyword: "",
+    mainVendorsOnly: true,
+    overallRiskScoreLevel: [],
+    preferredLevel: [],
+    purchasingUnitCodes: [],
+    qualificationStatus: [],
+    realmName: "JCD",
+    regionCode: [],
+    registrationStatus: [],
+    registrationUpdateStatus: [],
+    searchQualificationAndRegistrationStatusAsAWhole: false,
+    smProcessStatus: [],
+    smVendorIds: [],
+    spqFilterAnswerRequests: [],
+    
 };
 
 const commonHeaders = {
@@ -65,9 +68,17 @@ const refreshToken = async (token: string) =>{
     }
 }
 
-const makeRequest = async (endpoint: string, params: any, token: string) => {
+const makeRequest = async (endpoint: string, params: any, token: string, requestMethod ='POST', urlParams?: any) => {
+    // combine the url params from a json object to a string so it can be appended in the url
+    let urlSearchParams: any;
+    
+    if (urlParams) {
+        console.log('urlParams', urlParams);
+        urlSearchParams = new URLSearchParams(urlParams); //urlParams.map((param: string | number) => `${param}=${params[param]}`).join('&');
+    }
+   
     // Check if the data exists in the local JSON database
-    const url = `${baseURL}/${endpoint}?realm=JCD`;
+    const url = `${baseURL}/${endpoint}?realm=JCD&${urlSearchParams}`;
 
     const headers = {
         ...commonHeaders,
@@ -79,9 +90,9 @@ const makeRequest = async (endpoint: string, params: any, token: string) => {
 
     try {
         const response = await fetch(url, {
-            method: 'POST',
+            method: requestMethod,
             headers,
-            body: JSON.stringify(params),
+            body: params? JSON.stringify(params): null,
         });
 
         if (!response.ok) {
@@ -105,8 +116,74 @@ const makeRequest = async (endpoint: string, params: any, token: string) => {
     }
 }
 
+
+
+const queryVendor = async (vendorId: string, token: string) => {
+    const params = {}; //getSupplierParams({ smVendorIds: [vendorId] });
+    return makeRequest('queryVendor', null, token, 'GET', {
+        'smVendorId': vendorId,
+        'includeInactive': 'true'
+    });
+}
+
+// takes a string which has double quotes escaped and returns it with double quotes unescaped as an object
+const cleanWorkspaceResponse = (response: string) => {
+    const cleanedResponse = response.replace(/\\/g, '');
+    return JSON.parse(cleanedResponse);
+}
+
+const getSMWorkspace = async(workspaceId: string, token: string) => {
+    const params = {};
+
+    return makeRequest(`getSMWorkspace`, null, token, 'GET', {
+        'wsId': workspaceId,
+        'includeInactiveDocuments': 'false'
+    });
+}
+
+const queryRegistrations = async(vendorId: string, token:string ) => {
+    const params = {
+        "includeInactive": true,
+        "isRetrievePreviousWorkspaces": false,
+        "registrations": [
+          {
+            "smVendorId": vendorId
+          }
+        ]
+      }
+    return makeRequest('queryRegistration', params, token);
+}
+
 export const searchSuppliers = async (customParams: any, token:string) => {
     const params = getSupplierParams({ ...customParams });
-  
-    return makeRequest('searchSuppliers', params, token);
+    const suppliers = await makeRequest('searchSuppliers', params, token);
+    const vendor = await queryVendor(suppliers.suppliers[0].smVendorId, token);
+    const registrations = await queryRegistrations(suppliers.suppliers[0].smVendorId, token);
+    const workspace = await getSMWorkspace(registrations.registrations[0].statusId, token);
+    const cleanWorkspaceInfo = cleanWorkspaceResponse(workspace.workspace);
+    const tasksOnly = cleanWorkspaceInfo.tasks;
+    const registrationTaskOnlyNumber = tasksOnly.find((task: any) => task.documentName === "Supplier Registration Questionnaire").id;
+
+    const response = {
+        suppliers: suppliers,
+        vendor: vendor,
+        registrations: registrations,
+        workspace: workspace,
+        cleanWorkspaceInfo: cleanWorkspaceInfo,
+        tasks: tasksOnly,
+        registrationTaskId: registrationTaskOnlyNumber,
+    }
+
+    return response;
 }
+
+export const approveVendor = async (taskId: string, token: string) => {
+    console.log('approving taskId ariba.ts', taskId);
+    
+    const params = {
+        "taskId": taskId,
+        "taskAction": "Approve"
+    };
+    return makeRequest('updateTask', params, token, 'POST');
+}
+

@@ -9,8 +9,17 @@ Get it and install compile it like any other electronjs script.
 ## How to get Token
 
 Token expires very frequently, you will have to manually get it from dev tools of your browser
-The official API of SAP Ariba might not allow you to perform actions that this tool does.
 You will find it in the request headers called `X-Auth-Token`
+The official API of SAP Ariba might not allow you to perform actions that this tool does.
+You may check out this chrome extension which will print the token on screen while you browse Ariba: [header_shower](https://github.com/mo9a7i/ts_chrome_ext_header_shower)
+
+## How to use
+
+1. Open the app
+2. Insert the token
+3. Search for a supplier
+4. click the approve button
+5. that's it.
 
 ## Contributions
 

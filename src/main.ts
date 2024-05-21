@@ -1,6 +1,6 @@
-import  Storage  from './utilities/storage';
+import Storage from './utilities/storage';
 import { ipcMain, app, BrowserWindow } from 'electron';
-import { searchSuppliers } from './api';
+import { searchSuppliers, approveVendor } from './api';
 import path from 'path';
 import * as dotenv from "dotenv";
 
@@ -13,16 +13,17 @@ console.log('env token', process.env.TOKEN)
 
 
 ipcMain.on('save-inputs', async (event, data) => {
-  try{
+  try {
     await myStorage.save(data);
-    console.log('data written', data) 
+    console.log('data written', data)
   }
   catch (error) {
     console.error('Failed to save inputs', error);
   }
-  
+
 });
-ipcMain.on('load-inputs', async (event) => { 
+
+ipcMain.on('load-inputs', async (event) => {
   try {
     const data = await myStorage.load();
     event.reply('load-inputs-reply', JSON.parse(JSON.stringify(data))); // Ensure data is serializable
@@ -31,9 +32,6 @@ ipcMain.on('load-inputs', async (event) => {
     event.reply('load-inputs-reply', {}); // Send empty object on error 
   }
 });
-
-
-
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -79,9 +77,25 @@ app.on('activate', () => {
 // create the search-suppliers function that will be called from the preload.ts file
 ipcMain.on('search-suppliers', async (event, supplier, token) => {
   try {
-    const suppliers = await searchSuppliers({keyword: supplier}, token);
-        event.reply('search-suppliers-reply', suppliers);
-    } catch (error) {
-        event.reply('search-suppliers-reply', { error: error.message });
-    }
+    const response = await searchSuppliers({
+      keyword: supplier,
+
+    }, token);
+    
+    event.reply('search-suppliers-reply', response);
+  } catch (error) {
+    event.reply('search-suppliers-reply', { error: error.message });
+  }
+});
+
+ipcMain.on('approve-vendor', async (event, taskId, token) => {
+  try {
+    const approvedVendor = await approveVendor(taskId, token);
+    event.reply('search-suppliers-reply', approvedVendor);
+    console.log('approvedVendor', approvedVendor)
+
+  } catch (error) {
+    console.error('my error')
+    event.reply('search-suppliers-reply', { error: error.message });
+  }
 });

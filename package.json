@@ -1,7 +1,7 @@
 {
   "name": "my-new-app",
   "productName": "my-new-app",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -24,6 +24,8 @@
     "@electron/fuses": "^1.8.0",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "changeset": "^0.2.6",
     "electron": "30.0.2",
     "eslint": "^8.0.1",
     "eslint-plugin-import": "^2.25.0",
@@ -38,7 +40,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@vue/compiler-sfc": "^3.4.27",
+    "@vue/reactivity": "^3.4.27",
+    "@vue/runtime-core": "^3.4.27",
+    "@vue/runtime-dom": "^3.4.27",
+    "@vue/shared": "^3.4.27",
     "dotenv": "^16.4.5",
-    "electron-squirrel-startup": "^1.0.0"
+    "electron-squirrel-startup": "^1.0.0",
+    "vue": "^3.4.27"
   }
 }
