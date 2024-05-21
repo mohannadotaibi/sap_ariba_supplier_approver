@@ -1,15 +1,17 @@
 import { ipcRenderer, contextBridge } from "electron";
-
+//import logger from "./utilities/logger";
 let searchSuppliersPromiseResolver: any;
 let approveVendorPromiseResolver: any;
 
 ipcRenderer.on('search-suppliers-reply', (event, res) => {
+    //logger.debug(`Received search-suppliers-reply: ${JSON.stringify(res)}`)
     if (searchSuppliersPromiseResolver) {
         searchSuppliersPromiseResolver(res);
     }
 });
 
 ipcRenderer.on('approve-vendor-reply', (event, res) => {
+    //logger.debug(`Received approve-vendor-reply: ${JSON.stringify(res)}`)
     if (approveVendorPromiseResolver) {
         approveVendorPromiseResolver(res);
     }
@@ -19,19 +21,30 @@ ipcRenderer.on('approve-vendor-reply', (event, res) => {
 contextBridge.exposeInMainWorld("api", {
     searchSuppliers: (supplier: string, token: string) => new Promise((resolve) => {
         searchSuppliersPromiseResolver = resolve;
+        
+        //logger.debug(`Sending search-suppliers: ${supplier}`)
         ipcRenderer.send("search-suppliers", supplier, token);
     }),
     
     approveVendor: (taskId:string, token: string) => new Promise((resolve) => {
         approveVendorPromiseResolver = resolve;
+        
+        //logger.debug(`Sending approve-vendor: ${taskId}`)
         ipcRenderer.send("approve-vendor", taskId, token);
     }),
     
-    saveInputs: (data: any) => ipcRenderer.send('save-inputs', data),
+    saveInputs: (data: any) => {
+       // logger.debug(`Sending save-inputs: ${JSON.stringify(data)}`)
+        ipcRenderer.send('save-inputs', data)
+    },
     
     loadInputs: () => {
         return new Promise((resolve) => {
-            ipcRenderer.once('load-inputs-reply', (event, data) => resolve(data));
+            ipcRenderer.once('load-inputs-reply', (event, data) => {
+              //  logger.debug(`Received load-inputs-reply: ${JSON.stringify(data)}`)
+                resolve(data)
+            });
+            //logger.debug('Sending load-inputs')
             ipcRenderer.send('load-inputs');
         });
     },

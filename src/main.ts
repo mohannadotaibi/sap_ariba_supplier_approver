@@ -3,13 +3,14 @@ import { ipcMain, app, BrowserWindow } from 'electron';
 import { searchSuppliers, approveVendor } from './api';
 import path from 'path';
 import * as dotenv from "dotenv";
+import logger from './utilities/logger';
 
 const myStorage = new Storage('../../data.json');
 
 dotenv.config();
 
-console.log('main.ts');
-console.log('env token', process.env.TOKEN)
+logger.info('main.ts');
+logger.info(`env token ${process.env.TOKEN}`)
 
 
 ipcMain.on('save-inputs', async (event, data) => {
@@ -45,6 +46,8 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
     },
   });
 
@@ -89,15 +92,15 @@ ipcMain.on('search-suppliers', async (event, supplier, token) => {
 });
 
 ipcMain.on('approve-vendor', async (event, taskId, token) => {
-  console.log('Approve vendor called with:', taskId, token); // Log to check parameters
+  logger.log('Approve vendor called with:', taskId, token); // Log to check parameters
 
   try {
     const approvedVendor = await approveVendor(taskId, token);
-    console.log('Approved vendor:', approvedVendor); // Log the response
+    logger.info('Approved vendor:', approvedVendor); // Log the response
     event.reply('approve-vendor-reply', approvedVendor);
 
   } catch (error) {
-    console.error('Error in approve vendor:', error);
+    logger.error('Error in approve vendor:', error);
     event.reply('approve-vendor-reply', { error: error.message });
   }
 });
