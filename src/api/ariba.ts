@@ -86,7 +86,7 @@ const makeRequest = async (endpoint: string, params: any, token: string, request
         'x-auth-token': token,
     };
 
-    refreshToken(token); // Refresh the token before making the request
+    //refreshToken(token); // Refresh the token before making the request
 
     try {
         const response = await fetch(url, {
@@ -154,28 +154,39 @@ const queryRegistrations = async(vendorId: string, token:string ) => {
     return makeRequest('queryRegistration', params, token);
 }
 
-export const searchSuppliers = async (customParams: any, token:string) => {
+export const searchSuppliers = async (customParams: any, token: string) => {
     const params = getSupplierParams({ ...customParams });
-    const suppliers = await makeRequest('searchSuppliers', params, token);
-    const vendor = await queryVendor(suppliers.suppliers[0].smVendorId, token);
-    const registrations = await queryRegistrations(suppliers.suppliers[0].smVendorId, token);
+    const searchResponse = await makeRequest('searchSuppliers', params, token);
+
+    if (searchResponse.suppliers.length > 0) {
+        const supplierDetails = await Promise.all(searchResponse.suppliers.map(supplier => 
+            getSupplierDetails(supplier, token)
+        ));
+        return supplierDetails;
+    }
+    return [];
+}
+
+
+async function getSupplierDetails(supplier, token) {
+    const vendorDetails = await queryVendor(supplier.smVendorId, token);
+    const registrations = await queryRegistrations(supplier.smVendorId, token);
     const workspace = await getSMWorkspace(registrations.registrations[0].statusId, token);
     const cleanWorkspaceInfo = cleanWorkspaceResponse(workspace.workspace);
-    const tasksOnly = cleanWorkspaceInfo.tasks;
-    const registrationTaskOnlyNumber = tasksOnly.find((task: any) => task.documentName === "Supplier Registration Questionnaire").id;
-
-    const response = {
-        suppliers: suppliers,
-        vendor: vendor,
+    const tasks = cleanWorkspaceInfo.tasks;
+    const registrationTaskId = tasks.find(task => task.documentName === "Supplier Registration Questionnaire").id;
+    
+    return {
+        supplier: supplier,
+        vendor: vendorDetails,
         registrations: registrations,
         workspace: workspace,
         cleanWorkspaceInfo: cleanWorkspaceInfo,
-        tasks: tasksOnly,
-        registrationTaskId: registrationTaskOnlyNumber,
-    }
-
-    return response;
+        tasks: tasks,
+        registrationTaskId: registrationTaskId,
+    };
 }
+
 
 export const approveVendor = async (taskId: string, token: string) => {
     console.log('approving taskId ariba.ts', taskId);

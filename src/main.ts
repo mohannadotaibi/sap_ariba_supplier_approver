@@ -89,13 +89,15 @@ ipcMain.on('search-suppliers', async (event, supplier, token) => {
 });
 
 ipcMain.on('approve-vendor', async (event, taskId, token) => {
+  console.log('Approve vendor called with:', taskId, token); // Log to check parameters
+
   try {
     const approvedVendor = await approveVendor(taskId, token);
-    event.reply('search-suppliers-reply', approvedVendor);
-    console.log('approvedVendor', approvedVendor)
+    console.log('Approved vendor:', approvedVendor); // Log the response
+    event.reply('approve-vendor-reply', approvedVendor);
 
   } catch (error) {
-    console.error('my error')
-    event.reply('search-suppliers-reply', { error: error.message });
+    console.error('Error in approve vendor:', error);
+    event.reply('approve-vendor-reply', { error: error.message });
   }
 });

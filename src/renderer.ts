@@ -17,56 +17,78 @@ submitButton.addEventListener('click', async () => {
     results_table.innerHTML = '';  // Clear previous results
     // @ts-expect-error it exists
     const res =  await api.searchSuppliers(supplier.value, token.value);
-    console.log('res', res) 
+    console.log('res', res)  
     
-    if(res.suppliers.statusCode == 0 && res.suppliers.suppliers.length > 0){
-        results_table.innerHTML = '';  // Clear previous results
-        const list = document.createElement('ul');
-
-        for(const supplier of res.suppliers.suppliers){
-            console.log('supplier', supplier)
-            const li = document.createElement('li');
-            li.innerHTML = `<strong>${supplier.name}</strong> - Vendor ID: ${supplier.smVendorId}`;
-
-            const profileUrl = `https://example.com/profile/${supplier.smVendorId}`;
-            li.innerHTML += ` <a href="${profileUrl}" target="_blank">Profile</a>`;
-
-            // Assuming an 'Approve' action might need to be taken
-            // eslint-disable-next-line no-constant-condition
-            if (res.vendor.vendor.vendorInfo.registrationStatus === "PendingApproval") {
-                const approveButton = document.createElement('button');
-                approveButton.textContent = 'Approve';
-                approveButton.onclick = async () => {
-                    console.log
-                    await handleApproval(res.registrationTaskId, token.value);
-                    alert('approved')
-                };
-                li.appendChild(approveButton);
-            }
-
-            list.appendChild(li);
-        }
-
-
-        results_table.appendChild(list);
-
-        output.innerText = `${res.suppliers.suppliers.length} suppliers found`;
-        console.log('status code from rendere', res.statusCode)
-    }
-    else{
+    if (res.length > 0) {
+        displaySuppliers(res);
+        output.innerText = `${res.length} suppliers found`;
+        
+    } else {
         output.innerText = 'No suppliers found or error in response';
     }
+
+    
+
 });
+
+function displaySuppliers(suppliers) {
+    const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.backgroundColor = 'red';
+
+        const thead = table.createTHead();
+        const headerRow = thead.insertRow();
+        const headers = ['Supplier Name', 'ID', 'Profile', 'Actions'];
+        headers.forEach(text => {
+            const th = document.createElement('th');
+            th.textContent = text;
+            headerRow.appendChild(th);
+        });
+
+        const tbody = table.createTBody();
+
+    suppliers.forEach(supplierInfo => {
+    
+        const row = tbody.insertRow();
+        row.insertCell().textContent = supplierInfo.supplier.name;
+        row.insertCell().textContent = supplierInfo.supplier.smVendorId;
+
+        const profileCell = row.insertCell();
+        const profileLink = document.createElement('a');
+        profileLink.href = `https://example.com/profile/${supplierInfo.supplier.smVendorId}`;
+        profileLink.target = '_blank';
+        profileLink.textContent = 'Profile';
+        profileCell.appendChild(profileLink);
+
+        const actionCell = row.insertCell();
+        
+        if (supplierInfo.vendor.vendor.vendorInfo.registrationStatus === "PendingApproval") {
+            const approveButton = document.createElement('button');
+            approveButton.textContent = 'Approve';
+            approveButton.addEventListener('click', () => handleApproval(supplierInfo.registrationTaskId, token.value));
+            actionCell.appendChild(approveButton);
+        } else {
+            actionCell.textContent = 'x';
+        }
+
+        results_table.appendChild(table);
+        
+    });
+}
+
+
 
 async function handleApproval(taskId: string, token: string) {
     console.log('Approving task renderer.ts', taskId);
     // @ts-expect-error it exists
     api.approveVendor(taskId, token).then((res) => {
-        if (res.statusCode === 0) {
-            console.log('Vendor data:', res);
+        if (res.statusCode === 200) {
+            console.log('Vendor approved:', res);
+            alert('Approval successful!');
             // Do something with the vendor data
         } else {
-            console.error('Error:', res.message);
+            console.error('Approval failed:', res.message);
+            alert('Approval failed!');
         }
     });
 }

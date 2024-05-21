@@ -21,6 +21,10 @@ You may check out this chrome extension which will print the token on screen whi
 4. click the approve button
 5. that's it.
 
+## Keywords
+
+`Changeset`, `Typescript`, `Vite`, `Vue`, `Electronjs`, `Eslint`, `Spitit`, `Electron Forge`, `SAP Ariba`, `Supplier`, `Approver`, `Token`, `API`
+
 ## Contributions
 
 You should be a geek if you want to contribute to this repo, no need for direction, do the right thing, you should know it.
