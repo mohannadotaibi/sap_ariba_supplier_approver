@@ -1,38 +1,14 @@
-import Storage from './utilities/storage';
+import path from 'path';
 import { ipcMain, app, BrowserWindow } from 'electron';
 import { searchSuppliers, approveVendor } from './api';
-import path from 'path';
-import * as dotenv from "dotenv";
+import Storage from './utilities/storage';
 import logger from './utilities/logger';
-
-const myStorage = new Storage('../../data.json');
-
+import * as dotenv from "dotenv";
 dotenv.config();
-
-logger.info('main.ts');
-logger.info(`env token ${process.env.TOKEN}`)
+const myStorage = new Storage('../../data/data.json');
 
 
-ipcMain.on('save-inputs', async (event, data) => {
-  try {
-    await myStorage.save(data);
-    console.log('data written', data)
-  }
-  catch (error) {
-    console.error('Failed to save inputs', error);
-  }
-
-});
-
-ipcMain.on('load-inputs', async (event) => {
-  try {
-    const data = await myStorage.load();
-    event.reply('load-inputs-reply', JSON.parse(JSON.stringify(data))); // Ensure data is serializable
-  } catch (error) {
-    console.error('Failed to send load inputs', error);
-    event.reply('load-inputs-reply', {}); // Send empty object on error 
-  }
-});
+logger.info(`main.ts, env token ${process.env.TOKEN}`)
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -55,7 +31,7 @@ const createWindow = () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)); 
   }
 
   // Open the DevTools.
@@ -76,6 +52,31 @@ app.on('activate', () => {
   }
 });
 
+
+
+
+// ipc Functions
+
+ipcMain.on('save-inputs', async (event, data) => {
+  try {
+    await myStorage.save(data);
+    console.log('data written', data)
+  }
+  catch (error) {
+    console.error('Failed to save inputs', error);
+  }
+
+});
+
+ipcMain.on('load-inputs', async (event) => {
+  try {
+    const data = await myStorage.load();
+    event.reply('load-inputs-reply', JSON.parse(JSON.stringify(data))); // Ensure data is serializable
+  } catch (error) {
+    console.error('Failed to send load inputs', error);
+    event.reply('load-inputs-reply', {}); // Send empty object on error 
+  }
+});
 
 // create the search-suppliers function that will be called from the preload.ts file
 ipcMain.on('search-suppliers', async (event, supplier, token) => {
