@@ -1,8 +1,10 @@
 import { ipcRenderer, contextBridge } from "electron";
-//import logger from "./utilities/logger";
-let searchSuppliersPromiseResolver: any;
-let approveVendorPromiseResolver: any;
 
+// Define types for resolvers
+let searchSuppliersPromiseResolver: ((value: any) => void) | null = null;
+let approveVendorPromiseResolver: ((value: any) => void) | null = null;
+
+// Handle search-suppliers reply
 ipcRenderer.on('search-suppliers-reply', (event, res) => {
     //logger.debug(`Received search-suppliers-reply: ${JSON.stringify(res)}`)
     if (searchSuppliersPromiseResolver) {
@@ -10,6 +12,7 @@ ipcRenderer.on('search-suppliers-reply', (event, res) => {
     }
 });
 
+// Handle approve-vendor reply
 ipcRenderer.on('approve-vendor-reply', (event, res) => {
     //logger.debug(`Received approve-vendor-reply: ${JSON.stringify(res)}`)
     if (approveVendorPromiseResolver) {
@@ -17,44 +20,42 @@ ipcRenderer.on('approve-vendor-reply', (event, res) => {
     }
 });
 
+// Expose protected methods that allow the renderer process to use the ipcRenderer without exposing the entire object
 contextBridge.exposeInMainWorld("api", {
-    searchSuppliers: (supplier: string, token: string) => new Promise((resolve) => {
-        searchSuppliersPromiseResolver = resolve;
-        
-        //logger.debug(`Sending search-suppliers: ${supplier}`)
-        ipcRenderer.send("search-suppliers", supplier, token);
-    }),
+    searchSuppliers: (supplier: string, token: string): Promise<any> =>
+        new Promise((resolve) => {
+            searchSuppliersPromiseResolver = resolve;
+            ipcRenderer.send('search-suppliers', supplier, token);
+        }),
 
-    openLoginWindow: () => {
+
+    openLoginWindow: (): void => {
         ipcRenderer.send('open-login-window');
     },
 
-    receiveToken: (callback: (token: string) => void) => {
+    receiveToken: (callback: (token: string) => void): void => {
         ipcRenderer.on('token-received', (event, token) => callback(token));
     },
 
-    
-    approveVendor: (taskId:string, token: string) => new Promise((resolve) => {
-        approveVendorPromiseResolver = resolve;
-        
-        //logger.debug(`Sending approve-vendor: ${taskId}`)
-        ipcRenderer.send("approve-vendor", taskId, token);
-    }),
-    
-    saveInputs: (data: any) => {
-       // logger.debug(`Sending save-inputs: ${JSON.stringify(data)}`)
-        ipcRenderer.send('save-inputs', data)
-    },
-    
-    loadInputs: () => {
-        return new Promise((resolve) => {
-            ipcRenderer.once('load-inputs-reply', (event, data) => {
-              //  logger.debug(`Received load-inputs-reply: ${JSON.stringify(data)}`)
-                resolve(data)
-            });
-            //logger.debug('Sending load-inputs')
-            ipcRenderer.send('load-inputs');
-        });
+
+
+    approveVendor: (taskId: string, token: string): Promise<any> =>
+        new Promise((resolve) => {
+            approveVendorPromiseResolver = resolve;
+            ipcRenderer.send('approve-vendor', taskId, token);
+        }),
+
+
+    saveInputs: (data: any): void => {
+        ipcRenderer.send('save-inputs', data);
     },
 
+
+    loadInputs: (): Promise<any> =>
+        new Promise((resolve) => {
+            ipcRenderer.once('load-inputs-reply', (event, data) => {
+                resolve(data);
+            });
+            ipcRenderer.send('load-inputs');
+        }),
 });

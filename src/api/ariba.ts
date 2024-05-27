@@ -1,211 +1,98 @@
-import logger from '../utilities/logger'
+import logger from '../utilities/logger';
+import { makeRequest, refreshToken, commonParams, queryVendor, cleanWorkspaceResponse, getSMWorkspace, queryRegistrations } from './utils';
 
-const baseURL = 'https://s1.mn2.ariba.com/SM/rest';
-
-const commonParams: paramsArray = {
-    activeType: "active",
-    batchSize: 5,
-    categoryCode: [],
-    certCondition: {},
-    departmentCode: [],
-    filterOutDisqualifiedMatrix: false,
-    includeFacet: true,
-    includeLegalAddress: false,
-    includeMatrix: false,
-    includeOrderingAddresses: true,
-    includeRemittanceAddresses: true,
-    isBulkQualification: false,
-    isErpIntegrated: null,
-    isFactory: false,
-    isMQEnhancementFlow: false,
-    keyword: "",
-    mainVendorsOnly: true,
-    overallRiskScoreLevel: [],
-    preferredLevel: [],
-    purchasingUnitCodes: [],
-    qualificationStatus: [],
-    realmName: "JCD",
-    regionCode: [],
-    registrationStatus: [],
-    registrationUpdateStatus: [],
-    searchQualificationAndRegistrationStatusAsAWhole: false,
-    smProcessStatus: [],
-    smVendorIds: [],
-    spqFilterAnswerRequests: [],
-    
+const getSupplierParams = (customParams: Partial<ParamsArray>): ParamsArray => {
+  return { ...commonParams, ...customParams };
 };
 
-const commonHeaders = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-    'X-Permitted-Cross-Domain-Policies': 'master-only',
-    'sec-ch-ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
-    'sec-ch-ua-mobile': '?0',
-    'sec-ch-ua-platform': '"Windows"',
-};
 
-const getSupplierParams = (customParams: any) =>{
-    return { ...commonParams, ...customParams };
-}
+const getSupplierDetails = async (supplier: any, token: string): Promise<any> => {
+  try {
 
-const refreshToken = async (token: string) =>{
-    const url = `${baseURL}/internal/refreshtoken?realm=JCD`;
-
-    const headers = {
-        ...commonHeaders,
-        'x-auth-token': token,
-    };
-
-    const response = await fetch(url, {
-        method: 'GET',
-        headers,
-    });
-
-    if (response.ok) {
-        token = response.headers.get('x-auth-token');
-        logger.info('got new token', token)
-    } else {
-        logger.error('Failed to refresh token');
-    }
-}
-
-const makeRequest = async (endpoint: string, params: any, token: string, requestMethod ='POST', urlParams?: any) => {
-    // combine the url params from a json object to a string so it can be appended in the url
-    let urlSearchParams: any;
-    
-    if (urlParams) {
-        logger.info('urlParams', urlParams);
-        urlSearchParams = new URLSearchParams(urlParams); //urlParams.map((param: string | number) => `${param}=${params[param]}`).join('&');
-    }
-   
-    // Check if the data exists in the local JSON database
-    const url = `${baseURL}/${endpoint}?realm=JCD&${urlSearchParams}`;
-
-    const headers = {
-        ...commonHeaders,
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-    };
-
-    //refreshToken(token); // Refresh the token before making the request
-
-    try {
-        const response = await fetch(url, {
-            method: requestMethod,
-            headers,
-            body: params? JSON.stringify(params): null,
-        });
-
-        if (!response.ok) {
-            // if error code is 401 it means the token has expired
-            if (response.status === 401) {
-                logger.info('Token expired, refreshing...');
-                throw new Error('TokenExpired');
-            }
-            else {
-                logger.info(response);
-                throw new Error(`Error in ${endpoint}: ${response.status} ${response.statusText}`);
-            }
-        }
-
-        const data = await response.json();
-        return data;
-    } 
-    catch (error) {
-        logger.error(`Error in ${endpoint}:`, error.message);
-        throw error;
-    }
-}
-
-const queryVendor = async (vendorId: string, token: string) => {
-    const params = {}; //getSupplierParams({ smVendorIds: [vendorId] });
-    return makeRequest('queryVendor', null, token, 'GET', {
-        'smVendorId': vendorId,
-        'includeInactive': 'true'
-    });
-}
-
-// takes a string which has double quotes escaped and returns it with double quotes unescaped as an object
-const cleanWorkspaceResponse = (response: string) => {
-    const cleanedResponse = response.replace(/\\/g, '');
-    return JSON.parse(cleanedResponse);
-}
-
-const getSMWorkspace = async(workspaceId: string, token: string) => {
-    const params = {};
-
-    return makeRequest(`getSMWorkspace`, null, token, 'GET', {
-        'wsId': workspaceId,
-        'includeInactiveDocuments': 'false'
-    });
-}
-
-const queryRegistrations = async(vendorId: string, token:string ) => {
-    const params = {
-        "includeInactive": true,
-        "isRetrievePreviousWorkspaces": false,
-        "registrations": [
-          {
-            "smVendorId": vendorId
-          }
-        ]
-      }
-    return makeRequest('queryRegistration', params, token);
-}
-
-const getSupplierDetails = async(supplier, token)=> {
     const vendorDetails = await queryVendor(supplier.smVendorId, token);
     const registrations = await queryRegistrations(supplier.smVendorId, token);
     const workspace = await getSMWorkspace(registrations.registrations[0].statusId, token);
     const cleanWorkspaceInfo = cleanWorkspaceResponse(workspace.workspace);
     const tasks = cleanWorkspaceInfo.tasks;
-    const registrationTaskId = tasks.find(task => task.documentName === "Supplier Registration Questionnaire").id;
-    const registrationDocumentId = tasks.find(task => task.documentName === "Supplier Registration Questionnaire").documentId;
+    const registrationTaskId = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire').id;
+    const registrationDocumentId = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire').documentId;
     const questionnaire = await deprecatedGetQuestionnaireIncludePrevious(registrationDocumentId, token);
-    
+
     return {
-        supplier: supplier,
-        vendor: vendorDetails,
-        registrations: registrations,
-        workspace: workspace,
-        cleanWorkspaceInfo: cleanWorkspaceInfo,
-        tasks: tasks,
-        registrationTaskId: registrationTaskId,
-        questionnaire: questionnaire
+      supplier,
+      vendor: vendorDetails,
+      registrations,
+      workspace,
+      cleanWorkspaceInfo,
+      tasks,
+      registrationTaskId,
+      questionnaire,
     };
-}
+  } catch (error) {
+    logger.error('Error getting supplier details:', error);
+    throw new Error('Failed to get supplier details');
+  }
 
-const deprecatedGetQuestionnaireIncludePrevious = async (docId: string, token: string) => {
+};
+
+
+
+const deprecatedGetQuestionnaireIncludePrevious = async (docId: string, token: string): Promise<any> => {
+  try {
+
     const params = {
-        "docId": docId,
-        "viewMode": "View",
-        "includePreviousResponse": "true",
-        "returnLatestDocIfArchived": "false"
+      docId,
+      viewMode: 'View',
+      includePreviousResponse: 'true',
+      returnLatestDocIfArchived: 'false',
     };
 
-    return makeRequest('deprecatedGetQuestionnaireIncludePrevious', null, token, 'GET',params);
-}
+    return makeRequest('deprecatedGetQuestionnaireIncludePrevious', null, token, 'GET', params);
 
-export const searchSuppliers = async (customParams: any, token: string) => {
-    const params = getSupplierParams({ ...customParams });
+  } catch (error) {
+    logger.error('Error getting questionnaire:', error);
+    throw new Error('Failed to get questionnaire');
+  }
+
+
+};
+
+export const searchSuppliers = async (customParams: Partial<ParamsArray>, token: string): Promise<any[]> => {
+  try {
+
+    const params = getSupplierParams(customParams);
     const searchResponse = await makeRequest('searchSuppliers', params, token);
 
     if (searchResponse.suppliers.length > 0) {
-        const supplierDetails = await Promise.all(searchResponse.suppliers.map(supplier => 
-            getSupplierDetails(supplier, token)
-        ));
-        return supplierDetails;
+      const supplierDetails = await Promise.all(
+        searchResponse.suppliers.map((supplier: any) => getSupplierDetails(supplier, token))
+      );
+      return supplierDetails;
     }
     return [];
-}
 
-export const approveVendor = async (taskId: string, token: string) => {
-    // lets import the logger and use it
-    
-    logger.info('approving taskId ariba.ts', taskId);
-    
+  } catch (error) {
+    logger.error('Error searching suppliers:', error);
+    throw new Error('Failed to search suppliers');
+  }
+
+
+};
+
+export const approveVendor = async (taskId: string, token: string): Promise<any> => {
+  logger.info('Approving taskId ariba.ts', taskId);
+
+  try {
+
     const params = {
-        "taskId": taskId,
-        "taskAction": "Approve"
+      taskId,
+      taskAction: 'Approve',
     };
     return makeRequest('updateTask', params, token, 'POST');
-}
+
+  } catch (error) {
+    logger.error('Error approving vendor:', error);
+    throw new Error('Failed to approve vendor');
+  }
+
+};

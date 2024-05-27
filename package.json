@@ -1,7 +1,7 @@
 {
   "name": "my-new-app",
   "productName": "my-new-app",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -22,16 +22,17 @@
     "@electron-forge/plugin-vite": "^7.4.0",
     "@electron-forge/shared-types": "^7.4.0",
     "@electron/fuses": "^1.8.0",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
     "@vitejs/plugin-vue": "^5.0.4",
     "changeset": "^0.2.6",
     "electron": "30.0.2",
-    "eslint": "^8.0.1",
-    "eslint-plugin-import": "^2.25.0",
-    "ts-node": "^10.0.0",
-    "typescript": "~4.5.4",
-    "vite": "^5.0.12"
+    "eslint": "^8.57.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~4.5.5",
+    "vite": "^5.2.11"
   },
   "keywords": [],
   "author": {
@@ -45,8 +46,7 @@
     "@vue/runtime-core": "^3.4.27",
     "@vue/runtime-dom": "^3.4.27",
     "@vue/shared": "^3.4.27",
-    "dotenv": "^16.4.5",
-    "electron-squirrel-startup": "^1.0.0",
+    "electron-squirrel-startup": "^1.0.1",
     "vue": "^3.4.27",
     "winston": "^3.13.0"
   }

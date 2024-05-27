@@ -1,33 +1,34 @@
-interface paramsArray {
-    includeLegalAddress: boolean,
-    batchSize: number | null,
-    categoryCode: string[] | null,
-    regionCode: string[] | null,
-    departmentCode: string[] | null,
-    includeOrderingAddresses: boolean,
-    includeRemittanceAddresses: boolean,
-    purchasingUnitCodes: string[] | null,
-    registrationStatus: string[] | null,
-    registrationUpdateStatus: string[] | null,
-    realmName: string,
-    smVendorIds: string[] | null,
-    filterOutDisqualifiedMatrix: boolean,
-    includeMatrix: boolean,
-    searchQualificationAndRegistrationStatusAsAWhole: boolean,
-    isErpIntegrated: unknown | null,
-    keyword: string,
-    qualificationStatus: string[] | null,
-    preferredLevel: string[] | null,
-    spqFilterAnswerRequests: string[] | null,
-    certCondition: unknown | null,
-    overallRiskScoreLevel: string[] | null,
-    smProcessStatus: string[] | null,
-    isFactory: boolean,
-    activeType: string,
-    includeFacet: boolean,
-    mainVendorsOnly: boolean,
-    isBulkQualification: boolean,
-    isMQEnhancementFlow: boolean,
+interface ParamsArray {
+    activeType: string;
+  batchSize: number;
+  categoryCode: string[];
+  certCondition: Record<string, unknown>;
+  departmentCode: string[];
+  filterOutDisqualifiedMatrix: boolean;
+  includeFacet: boolean;
+  includeLegalAddress: boolean;
+  includeMatrix: boolean;
+  includeOrderingAddresses: boolean;
+  includeRemittanceAddresses: boolean;
+  isBulkQualification: boolean;
+  isErpIntegrated: boolean | null;
+  isFactory: boolean;
+  isMQEnhancementFlow: boolean;
+  keyword: string;
+  mainVendorsOnly: boolean;
+  overallRiskScoreLevel: string[];
+  preferredLevel: string[];
+  purchasingUnitCodes: string[];
+  qualificationStatus: string[];
+  realmName: string;
+  regionCode: string[];
+  registrationStatus: string[];
+  registrationUpdateStatus: string[];
+  searchQualificationAndRegistrationStatusAsAWhole: boolean;
+  smProcessStatus: string[];
+  smVendorIds: string[];
+  spqFilterAnswerRequests: string[];
+
 }
 declare module "*.vue" {
     import { DefineComponent } from 'vue'

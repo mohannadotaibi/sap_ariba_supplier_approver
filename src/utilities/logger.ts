@@ -1,5 +1,6 @@
 import { createLogger, format, transports } from 'winston';
 
+// Create a logger instance with specified configuration
 const logger = createLogger({
   level: 'info',
   format: format.combine(
@@ -17,7 +18,7 @@ const logger = createLogger({
   ]
 });
 
-// If we're not in production then log to the `console` with the format:
+// Log to console if not in production
 if (process.env.NODE_ENV !== 'production') {
   logger.add(new transports.Console({
     format: format.combine(

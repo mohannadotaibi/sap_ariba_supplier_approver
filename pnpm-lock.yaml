@@ -23,11 +23,8 @@ importers:
       '@vue/shared':
         specifier: ^3.4.27
         version: 3.4.27
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
       electron-squirrel-startup:
-        specifier: ^1.0.0
+        specifier: ^1.0.1
         version: 1.0.1
       vue:
         specifier: ^3.4.27
@@ -67,10 +64,10 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0
       '@typescript-eslint/eslint-plugin':
-        specifier: ^5.0.0
+        specifier: ^5.62.0
         version: 5.62.0(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@4.5.5))(eslint@8.57.0)(typescript@4.5.5)
       '@typescript-eslint/parser':
-        specifier: ^5.0.0
+        specifier: ^5.62.0
         version: 5.62.0(eslint@8.57.0)(typescript@4.5.5)
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
@@ -82,19 +79,22 @@ importers:
         specifier: 30.0.2
         version: 30.0.2
       eslint:
-        specifier: ^8.0.1
+        specifier: ^8.57.0
         version: 8.57.0
       eslint-plugin-import:
-        specifier: ^2.25.0
+        specifier: ^2.29.1
         version: 2.29.1(@typescript-eslint/parser@5.62.0(eslint@8.57.0)(typescript@4.5.5))(eslint@8.57.0)
+      prettier:
+        specifier: ^3.2.5
+        version: 3.2.5
       ts-node:
-        specifier: ^10.0.0
+        specifier: ^10.9.2
         version: 10.9.2(@types/node@20.12.12)(typescript@4.5.5)
       typescript:
-        specifier: ~4.5.4
+        specifier: ~4.5.5
         version: 4.5.5
       vite:
-        specifier: ^5.0.12
+        specifier: ^5.2.11
         version: 5.2.11(@types/node@20.12.12)
 
 packages:
@@ -1133,10 +1133,6 @@ packages:
   doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
-
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
-    engines: {node: '>=12'}
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
@@ -2294,6 +2290,11 @@ packages:
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
+
+  prettier@3.2.5:
+    resolution: {integrity: sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==}
+    engines: {node: '>=14'}
+    hasBin: true
 
   progress@2.0.3:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
@@ -4219,8 +4220,6 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dotenv@16.4.5: {}
-
   eastasianwidth@0.2.0: {}
 
   ee-first@1.1.1: {}
@@ -5609,6 +5608,8 @@ snapshots:
       commander: 9.5.0
 
   prelude-ls@1.2.1: {}
+
+  prettier@3.2.5: {}
 
   progress@2.0.3: {}
 

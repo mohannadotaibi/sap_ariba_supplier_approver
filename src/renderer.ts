@@ -13,50 +13,56 @@ const results_table = document.getElementById('results-table') as HTMLTableEleme
 const supplier_info = document.getElementById('supplier-info') as HTMLDivElement;
 const loginButton = document.getElementById('loginButton') as HTMLButtonElement;
 
+// Event listener for submit button
 submitButton.addEventListener('click', async () => {
     output.innerText = 'searching';
     results_table.innerHTML = '';  // Clear previous results
-    // @ts-expect-error it exists
-    const res =  await api.searchSuppliers(supplier.value, token.value);
-    console.log('res', res)  
-    
+
+    // @ts-expect-error `api` is defined in preload script
+    const res = await api.searchSuppliers(supplier.value, token.value);
+    console.log('res', res)
+
     if (res.length > 0) {
         displaySuppliers(res);
         output.innerText = `${res.length} suppliers found`;
         displaySupplierQuestionnaireAnswersTable(res[0]);
-        
+
     } else {
         output.innerText = 'No suppliers found or error in response';
     }
 
 });
 
+// Event listener for login button
 loginButton.addEventListener('click', () => {
-    // @ts-expect-error it exists
+    // @ts-expect-error `api` is defined in preload script
     api.openLoginWindow();
 });
 
+// Event listener for token input change
 token.addEventListener('change', async () => {
     console.log('token changed');
     updateInputs();
 });
 
+// Event listener for window unload to save inputs
 window.addEventListener('beforeunload', async () => {
     await updateInputs();
 });
 
+// Event listener for window load to load inputs
 window.addEventListener('DOMContentLoaded', async () => {
-    // @ts-expect-error it exists
+    // @ts-expect-error `api` is defined in preload script
     const inputs = await api.loadInputs();
 
     if (inputs.token) {
         token.value = inputs.token;
     }
     if (inputs.supplier) {
-        supplier.value = inputs.supplier;  
+        supplier.value = inputs.supplier;
     }
 
-    // @ts-expect-error it exists
+    // @ts-expect-error `api` is defined in preload script
     window.api.receiveToken((token_value) => {
         if (token) {
             token.value = token_value;
@@ -68,24 +74,25 @@ window.addEventListener('DOMContentLoaded', async () => {
 
 });
 
-const displaySuppliers = (suppliers) =>{
+// Function to display suppliers in the table
+const displaySuppliers = (suppliers: any[]): void => {
     const table = document.createElement('table');
-        table.style.width = '100%';
-        table.style.backgroundColor = 'red';
+    table.style.width = '100%';
+    table.style.backgroundColor = 'red';
 
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
-        const headers = ['Supplier Name', 'ID', 'Profile', 'Actions'];
-        headers.forEach(text => {
-            const th = document.createElement('th');
-            th.textContent = text;
-            headerRow.appendChild(th);
-        });
+    const thead = table.createTHead();
+    const headerRow = thead.insertRow();
+    const headers = ['Supplier Name', 'ID', 'Profile', 'Actions'];
+    headers.forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+    });
 
-        const tbody = table.createTBody();
+    const tbody = table.createTBody();
 
     suppliers.forEach(supplierInfo => {
-    
+
         const row = tbody.insertRow();
         row.insertCell().textContent = supplierInfo.supplier.name;
         row.insertCell().textContent = supplierInfo.supplier.smVendorId;
@@ -98,7 +105,7 @@ const displaySuppliers = (suppliers) =>{
         profileCell.appendChild(profileLink);
 
         const actionCell = row.insertCell();
-        
+
         if (supplierInfo.vendor.vendor.vendorInfo.registrationStatus === "PendingApproval") {
             const approveButton = document.createElement('button');
             approveButton.textContent = 'Approve';
@@ -109,11 +116,11 @@ const displaySuppliers = (suppliers) =>{
         }
 
         results_table.appendChild(table);
-        
+
     });
 }
-
-const displaySupplierQuestionnaireAnswersTable = (supplier) => {
+// Function to display supplier questionnaire answers in a table
+const displaySupplierQuestionnaireAnswersTable = (supplier: any): void => {
     supplier_info.innerHTML = '';
     const table = document.createElement('table');
     table.style.width = '100%';
@@ -190,20 +197,11 @@ const displaySupplierQuestionnaireAnswersTable = (supplier) => {
 
     console.log('qna', qna);
 
-
-    // supplier.questionnaire.vendor.vendorInfo.questionnaireAnswers.forEach(answer => {
-    //     const row = tbody.insertRow();
-    //     row.insertCell().textContent = answer.question;
-    //     row.insertCell().textContent = answer.answer;
-    // });
-
-    // supplier_info.appendChild(table);
-
     // Now lets loop through QNA and display a good table with full with TR and TDs for sections, and broken down TRs for questions and answers
     // if it is a section, it should be one td with col-span 2, if it is a question, it should be two tds, one for question and one for answer
     qna.forEach(item => {
         const row = tbody.insertRow();
-        
+
         if (item.isSection) {
             const cell = row.insertCell();
             cell.textContent = item.question;
@@ -230,17 +228,18 @@ const displaySupplierQuestionnaireAnswersTable = (supplier) => {
             const answerCell = row.insertCell();
             answerCell.textContent = item.answer;
 
-            
+
         }
     });
-    
+
     supplier_info.appendChild(table);
 
 }
 
-const handleApproval = async (taskId: string, token: string) =>{
+// Function to handle approval of a vendor
+const handleApproval = async (taskId: string, token: string): Promise<void> => {
     console.log('Approving task renderer.ts', taskId);
-    // @ts-expect-error it exists
+    // @ts-expect-error `api` is defined in preload script
     api.approveVendor(taskId, token).then((res) => {
         if (res.statusCode === 200) {
             console.log('Vendor approved:', res);
@@ -253,11 +252,12 @@ const handleApproval = async (taskId: string, token: string) =>{
     });
 }
 
-const updateInputs = async () => {
+// Function to update inputs in storage
+const updateInputs = async (): Promise<void> => {
     const inputs = {
         token: token.value,
         supplier: supplier.value,
     };
-    // @ts-expect-error it exists
+    // @ts-expect-error `api` is defined in preload script
     await api.saveInputs(inputs);
 }
