@@ -5,13 +5,13 @@ import './view/style.css';
 //const app = createApp(App)
 //app.mount('#app')
 
-
 const submitButton = document.getElementById('submit') as HTMLButtonElement;
 const supplier = document.getElementById('supplier') as HTMLInputElement;
 const output = document.getElementById('output') as HTMLDivElement;
 const token = document.getElementById('token') as HTMLInputElement;
 const results_table = document.getElementById('results-table') as HTMLTableElement;
 const supplier_info = document.getElementById('supplier-info') as HTMLDivElement;
+const loginButton = document.getElementById('loginButton') as HTMLButtonElement;
 
 submitButton.addEventListener('click', async () => {
     output.innerText = 'searching';
@@ -31,7 +31,44 @@ submitButton.addEventListener('click', async () => {
 
 });
 
-function displaySuppliers(suppliers) {
+loginButton.addEventListener('click', () => {
+    // @ts-expect-error it exists
+    api.openLoginWindow();
+});
+
+token.addEventListener('change', async () => {
+    console.log('token changed');
+    updateInputs();
+});
+
+window.addEventListener('beforeunload', async () => {
+    await updateInputs();
+});
+
+window.addEventListener('DOMContentLoaded', async () => {
+    // @ts-expect-error it exists
+    const inputs = await api.loadInputs();
+
+    if (inputs.token) {
+        token.value = inputs.token;
+    }
+    if (inputs.supplier) {
+        supplier.value = inputs.supplier;  
+    }
+
+    // @ts-expect-error it exists
+    window.api.receiveToken((token_value) => {
+        if (token) {
+            token.value = token_value;
+            console.log('Token received:', token_value);
+        } else {
+            console.error('Token input not found.');
+        }
+    });
+
+});
+
+const displaySuppliers = (suppliers) =>{
     const table = document.createElement('table');
         table.style.width = '100%';
         table.style.backgroundColor = 'red';
@@ -76,7 +113,7 @@ function displaySuppliers(suppliers) {
     });
 }
 
-function displaySupplierQuestionnaireAnswersTable(supplier) {
+const displaySupplierQuestionnaireAnswersTable = (supplier) => {
     supplier_info.innerHTML = '';
     const table = document.createElement('table');
     table.style.width = '100%';
@@ -93,42 +130,6 @@ function displaySupplierQuestionnaireAnswersTable(supplier) {
     });
 
     const tbody = table.createTBody();
-
-    /*
-    supplier.questionnaire is an object which contains two critical proprties for the use in table below, items and responses, items is an array of objects which have a proprety called label
-    and a property called section, if it is true, then this item is a section, thus, it will have an array called items, each item will be the question and it has a label as well as
-    a labelId ti identify it.
-    then we have supplier.questionnaire.responses which is an array of answer versions, each version is an array of answers, each have an itemId linking it back to the itemId in the items array, and an answer proprety which has 
-    the answer to the question
-    we want to create a new constant where we map the questions labels to the latest version of the matching answer, then we can use it to show the table
-
-    the constant shall be structured like this
-    
-        const qna = [
-            {
-                question: 'section titme',
-                isSection: true,
-                qna: [
-                    {
-                        question: 'question1',
-                        isSection: false,
-                        answer: 'answer1'
-                    },
-                    {
-                        question: 'question2',
-                        isSection: false,
-                        answer: 'answer2'
-                    }
-                ]
-            },
-            {
-                question: 'question2',
-                isSection: false,
-                answer: 'answer2'
-            }
-        ]
-
-    */
 
     // we can use the items array to create the qna array, then we can use the responses array to fill in the answers
     const qna = supplier.questionnaire.items.map(item => {
@@ -237,7 +238,7 @@ function displaySupplierQuestionnaireAnswersTable(supplier) {
 
 }
 
-async function handleApproval(taskId: string, token: string) {
+const handleApproval = async (taskId: string, token: string) =>{
     console.log('Approving task renderer.ts', taskId);
     // @ts-expect-error it exists
     api.approveVendor(taskId, token).then((res) => {
@@ -251,28 +252,6 @@ async function handleApproval(taskId: string, token: string) {
         }
     });
 }
-
-window.addEventListener('DOMContentLoaded', async () => {
-    // @ts-expect-error it exists
-    const inputs = await api.loadInputs();
-
-    if (inputs.token) {
-        token.value = inputs.token;
-    }
-    if (inputs.supplier) {
-        supplier.value = inputs.supplier;  
-    }
-}); // what
-
-
-token.addEventListener('change', async () => {
-    console.log('token changed');
-    updateInputs();
-});
-
-window.addEventListener('beforeunload', async () => {
-    await updateInputs();
-});
 
 const updateInputs = async () => {
     const inputs = {

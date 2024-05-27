@@ -17,7 +17,6 @@ ipcRenderer.on('approve-vendor-reply', (event, res) => {
     }
 });
 
-
 contextBridge.exposeInMainWorld("api", {
     searchSuppliers: (supplier: string, token: string) => new Promise((resolve) => {
         searchSuppliersPromiseResolver = resolve;
@@ -25,6 +24,15 @@ contextBridge.exposeInMainWorld("api", {
         //logger.debug(`Sending search-suppliers: ${supplier}`)
         ipcRenderer.send("search-suppliers", supplier, token);
     }),
+
+    openLoginWindow: () => {
+        ipcRenderer.send('open-login-window');
+    },
+
+    receiveToken: (callback: (token: string) => void) => {
+        ipcRenderer.on('token-received', (event, token) => callback(token));
+    },
+
     
     approveVendor: (taskId:string, token: string) => new Promise((resolve) => {
         approveVendorPromiseResolver = resolve;

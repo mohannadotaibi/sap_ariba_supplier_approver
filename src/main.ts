@@ -15,9 +15,11 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+let mainWindow;
+
 const createWindow = () => {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 600,
     webPreferences: {
@@ -25,13 +27,13 @@ const createWindow = () => {
       contextIsolation: true,
       nodeIntegration: false,
     },
-  }); 
+  });
 
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`)); 
+    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
   // Open the DevTools.
@@ -53,10 +55,7 @@ app.on('activate', () => {
 });
 
 
-
-
 // ipc Functions
-
 ipcMain.on('save-inputs', async (event, data) => {
   try {
     await myStorage.save(data);
@@ -85,7 +84,7 @@ ipcMain.on('search-suppliers', async (event, supplier, token) => {
       keyword: supplier,
 
     }, token);
-    
+
     event.reply('search-suppliers-reply', response);
   } catch (error) {
     event.reply('search-suppliers-reply', { error: error.message });
@@ -105,3 +104,67 @@ ipcMain.on('approve-vendor', async (event, taskId, token) => {
     event.reply('approve-vendor-reply', { error: error.message });
   }
 });
+
+ipcMain.on('open-login-window', () => {
+  let loginWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    parent: mainWindow,
+    modal: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      webSecurity: true,
+    },
+  });
+  loginWindow.loadURL('http://jcd.sourcing.mn2.ariba.com/');
+
+  loginWindow.webContents.on('did-finish-load', async () => {
+    const url = loginWindow.webContents.getURL();
+    //console.log('Current URL:', url);
+
+
+    // Not Needed, user may input user and pass in window
+    // if (url.includes('adfs.jcd.com.sa')) {
+    //   try {
+    //     await loginWindow.webContents.executeJavaScript(`
+    //       if (document.querySelector('#userNameInput') && document.querySelector('#passwordInput')) {
+    //         document.querySelector('#userNameInput').value = '';
+    //         document.querySelector('#passwordInput').value = '';
+    //         document.querySelector('#loginForm').submit();
+    //       } else {
+    //         throw 'Login form elements not found.';
+    //       }
+    //     `);
+    //   } catch (error) {
+    //     console.error('Error executing script:', error);
+    //   }
+    // }
+
+  });
+
+  loginWindow.webContents.session.webRequest.onHeadersReceived({ urls: ['*://s1.mn2.ariba.com/*'] }, (details, callback) => {
+    if (details.responseHeaders['x-auth-token']) {
+      const authToken = details.responseHeaders['x-auth-token'][0];
+      console.log('x-auth-token:', authToken);
+      // Optionally send token back to renderer process or store it
+      // Example: mainWindow.webContents.send('token', authToken);
+      mainWindow.webContents.send('token-received', authToken);
+      loginWindow.close(); 
+
+    }
+    callback({ cancel: false });
+  });
+
+
+  loginWindow.webContents.on('did-navigate', (event, url) => {
+    //console.log('Navigated to:', url);
+  });
+
+
+
+  loginWindow.on('closed', () => {
+    loginWindow = null;
+  });
+
+})
