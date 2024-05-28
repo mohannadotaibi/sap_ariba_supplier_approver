@@ -1,9 +1,9 @@
 import './view/style.css';
-//import { createApp } from 'vue'
-//import App from './view/App.vue'
+import { createApp } from 'vue';
+import App from './view/App.vue';
 
-//const app = createApp(App)
-//app.mount('#app')
+createApp(App).mount('#app');
+
 
 const submitButton = document.getElementById('submit') as HTMLButtonElement;
 const supplier = document.getElementById('supplier') as HTMLInputElement;
@@ -11,7 +11,6 @@ const output = document.getElementById('output') as HTMLDivElement;
 const token = document.getElementById('token') as HTMLInputElement;
 const results_table = document.getElementById('results-table') as HTMLTableElement;
 const supplier_info = document.getElementById('supplier-info') as HTMLDivElement;
-const loginButton = document.getElementById('loginButton') as HTMLButtonElement;
 
 // Event listener for submit button
 submitButton.addEventListener('click', async () => {
@@ -31,12 +30,6 @@ submitButton.addEventListener('click', async () => {
         output.innerText = 'No suppliers found or error in response';
     }
 
-});
-
-// Event listener for login button
-loginButton.addEventListener('click', () => {
-    // @ts-expect-error `api` is defined in preload script
-    api.openLoginWindow();
 });
 
 // Event listener for token input change
