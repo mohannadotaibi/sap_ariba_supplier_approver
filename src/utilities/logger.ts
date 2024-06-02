@@ -1,5 +1,8 @@
 import { createLogger, format, transports } from 'winston';
 
+
+
+
 // Create a logger instance with specified configuration
 const logger = createLogger({
   level: 'info',
@@ -8,8 +11,8 @@ const logger = createLogger({
       format: 'YYYY-MM-DD HH:mm:ss'
     }),
     format.errors({ stack: true }),
-    format.splat(),
-    format.json()
+    //format.splat(),
+    format.printf(info => `${info.timestamp} [${info.level}]: ${info.message}`)
   ),
   defaultMeta: { service: 'Supprover' },
   transports: [

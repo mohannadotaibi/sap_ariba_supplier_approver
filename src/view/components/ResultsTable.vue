@@ -27,23 +27,39 @@
 </template>
 
 <script setup>
-	import { ref } from 'vue';
+	import { ref, watch } from 'vue';
 
 	const props = defineProps({
-		token: String,
-		results: Array
+		results: {
+			type: Array,
+			required: true
+		},
+		token: {
+			type: String,
+			required: true
+		}
 	});
 
-  const results = ref(props.results);
+	console.log('props', props.results.value);
 
-  watch(results, (newVal) => {
-    console.log('results updated');
-  });
+	const results = ref(props.results);
 
+	watch(() => props.results, newResults => {
+			console.log('ResultsTable received new results:', newResults);
+			results.value = newResults;
+		}
+	);
 
-	const approveVendor = async (taskId) => {
-		const token = ref(props.token);
-		await window.api.approveVendor(taskId, token.value);
+	const approveVendor = async taskId => {
+		const res = await window.api.approveVendor(taskId, props.token);
+		if (res.statusCode === 200) {
+            console.log('Vendor approved:', res);
+            alert('Approval successful!');
+            // Do something with the vendor data
+        } else {
+            console.error('Approval failed:', res.message);
+            alert('Approval failed!');
+        }
 	};
 </script>
 

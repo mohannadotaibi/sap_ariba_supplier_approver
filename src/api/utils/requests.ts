@@ -26,21 +26,42 @@ const refreshToken = async (token: string): Promise<string> => {
   return token;
 };
 
+const safeStringify = (obj) => {
+  const cache = new Set();
+  const json = JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (cache.has(value)) {
+        // Duplicate reference found, discard key
+        return;
+      }
+      // Store value in cache
+      cache.add(value);
+    }
+    return value;
+  });
+  cache.clear();
+  return json;
+};
+
 const makeRequest = async ( endpoint: string,  params: any,  token: string,  requestMethod: 'GET' | 'POST' = 'POST',  urlParams?: Record<string, string>): Promise<any> => {
   let urlSearchParams: string;
 
   if (urlParams) {
-    logger.info('urlParams', urlParams);
+    //logger.info('urlParams', urlParams);
     urlSearchParams = new URLSearchParams(urlParams).toString();
   }
 
-  const url = `${baseURL}/${endpoint}?realm=JCD&${urlSearchParams}`;
+  // shouldn't add urlSearchParams if it's empty or undefined
+  const url = urlSearchParams ? `${baseURL}/${endpoint}?realm=JCD&${urlSearchParams}` : `${baseURL}/${endpoint}?realm=JCD`;
 
   const headers = {
     ...commonHeaders,
     'Content-Type': 'application/json',
     'x-auth-token': token,
   };
+  const paramsString = params ? JSON.stringify(params) : 'none provided';
+
+  logger.log('info', `Making request to ${url} with ${requestMethod} method and Params: ${paramsString}`);
 
   try {
     const response = await fetch(url, {

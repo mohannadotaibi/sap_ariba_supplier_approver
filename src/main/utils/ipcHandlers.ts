@@ -38,7 +38,7 @@ ipcMain.on('search-suppliers', async (event, supplier: string, token: string) =>
     event.reply('search-suppliers-reply', response);
   } catch (error) {
     logger.error('Error searching suppliers:', error);
-    event.reply('search-suppliers-reply', { error: 'Failed to search suppliers' });
+    event.reply('search-suppliers-reply', { error: 'Failed to search suppliers 02' });
   }
 });
 

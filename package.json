@@ -35,10 +35,7 @@
     "vite": "^5.2.11"
   },
   "keywords": [],
-  "author": {
-    "name": "Mohannad Otaibi",
-    "email": "mohannad.otaibi@gmail.com"
-  },
+  "author": "Mohannad Otaibi",
   "license": "MIT",
   "dependencies": {
     "@vue/compiler-sfc": "^3.4.27",

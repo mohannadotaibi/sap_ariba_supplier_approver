@@ -9,7 +9,7 @@ const queryVendor = async (vendorId: string, token: string): Promise<any> => {
 
 const cleanWorkspaceResponse = (response: string): any => {
   const cleanedResponse = response.replace(/\\/g, '');
-  return JSON.parse(cleanedResponse);
+  return JSON.parse(response);
 };
 
 const getSMWorkspace = async (workspaceId: string, token: string): Promise<any> => {

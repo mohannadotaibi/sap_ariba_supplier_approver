@@ -9,13 +9,25 @@ const getSupplierParams = (customParams: Partial<ParamsArray>): ParamsArray => {
 const getSupplierDetails = async (supplier: any, token: string): Promise<any> => {
   try {
 
+    logger.info('requesting supplier details'+ supplier.smVendorId, token)
     const vendorDetails = await queryVendor(supplier.smVendorId, token);
+
+    logger.info('requesting registrations'+ supplier.smVendorId, token)
     const registrations = await queryRegistrations(supplier.smVendorId, token);
+
+    logger.info('requesting workspace'+ registrations.registrations[0].statusId, token)
     const workspace = await getSMWorkspace(registrations.registrations[0].statusId, token);
+    console.log('got the results')
+
+    logger.info('requesting questionnaire'+ workspace.workspace)
     const cleanWorkspaceInfo = cleanWorkspaceResponse(workspace.workspace);
+
+    logger.info('requesting tasks'+ cleanWorkspaceInfo.tasks, token)
     const tasks = cleanWorkspaceInfo.tasks;
     const registrationTaskId = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire').id;
     const registrationDocumentId = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire').documentId;
+
+    logger.info('requesting questionnaire'+ registrationDocumentId, token)
     const questionnaire = await deprecatedGetQuestionnaireIncludePrevious(registrationDocumentId, token);
 
     return {
@@ -57,6 +69,7 @@ const deprecatedGetQuestionnaireIncludePrevious = async (docId: string, token: s
 
 };
 
+
 export const searchSuppliers = async (customParams: Partial<ParamsArray>, token: string): Promise<any[]> => {
   try {
 
@@ -73,7 +86,7 @@ export const searchSuppliers = async (customParams: Partial<ParamsArray>, token:
 
   } catch (error) {
     logger.error('Error searching suppliers:', error);
-    throw new Error('Failed to search suppliers');
+    throw new Error('Failed to search suppliers 01');
   }
 
 
