@@ -1,15 +1,40 @@
 <template>
-	<div id="input-fields" style="text-align: center; display: flex; flex-direction: column">
-		<div style="display: flex; flex-direction: column">
-			<label for="token">Token</label>
+	<div id="input-fields" class="mb-2">
+		<div class="mb-2">
 
-			<input type="text" name="token" id="token" v-model="token" placeholder="Enter your token" />
+			<label for="token" class="block text-xs font-medium text-gray-300"> Token </label>
+
+<input
+  type="text"
+  id="token"
+  placeholder="enter token or login above"
+  class="mt-1 w-full rounded-md border-gray-200 shadow-sm sm:text-sm text-gray-800"
+  v-model="token"
+/>
+
+
+
+
 		</div>
-		<div style="display: flex; flex-direction: column; margin-bottom: 14px">
-			<label for="supplier">Supplier</label>
-			<input type="text" name="supplierName" id="supplierName" v-model="supplierName" placeholder="Enter your supplier name" />
+		<div class="mb-2">
+			<label for="supplierName" class="block text-xs font-medium text-gray-300"> Supplier Name (keywords) </label>
+
+<input
+  type="text"
+  id="supplierName"
+  placeholder="enter token or login above"
+  class="mt-1 w-full rounded-md border-gray-200 shadow-sm sm:text-sm text-gray-800"
+  v-model="supplierName"
+/>
+
 		</div>
-		<button id="submit" @click="searchSuppliers">Search</button>
+		<a
+  class="inline-block rounded border border-indigo-600 bg-indigo-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-indigo-600 focus:outline-none focus:ring active:text-indigo-500"
+  href="#"
+  @click="searchSuppliers"
+>
+Search
+</a>
 	</div>
 </template>
 

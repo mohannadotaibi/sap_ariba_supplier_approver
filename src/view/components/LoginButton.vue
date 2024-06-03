@@ -5,10 +5,6 @@
   <span class="relative inline-block border-2 border-current px-8 py-3 text-sm font-bold uppercase tracking-widest"  >Login</span>
 </a>
 
-
-
-
-  <button id="loginButton" @click="openLoginWindow">Log In</button>
 </template>
 
 <script setup>

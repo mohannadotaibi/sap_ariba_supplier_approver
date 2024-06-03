@@ -40,14 +40,18 @@
 <template>
 	<div id="app" class="bg-slate-950 text-white h-screen">
 		<div class="container mx-auto">
-			<h1 class="text-3xl font-medium mb-5 leading-loose">Supprover!</h1>
+			<header class="flex justify-between mb-5">
+				<h1 class="text-3xl font-medium">Supprover!</h1>
+				<LoginButton />
+			</header>
+			
 			<p class="text-emerald-400">Welcome to SAP Ariba Supplier Approver. Click the login button below to get started.</p>
-			<LoginButton />
+			
 
 			<InputFields @update-results="updateResults" @update-output="updateOutput" />
 
-			<hr />
-			<h2>Output</h2>
+			<hr class="py-4" />
+			<h2 class="font-bold text-2xl">Output</h2>
 			<div id="output">{{ output }}</div>
 
 			<ResultsTable :results="results" />
