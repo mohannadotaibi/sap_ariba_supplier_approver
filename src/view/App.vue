@@ -3,7 +3,7 @@
 	import LoginButton from './components/LoginButton.vue';
 	import InputFields from './components/InputFields.vue';
 	import ResultsTable from './components/ResultsTable.vue';
-	import SupplierInfo from './components/SupplierInfo.vue';
+	import SupplierDetails from './components/SupplierDetails.vue';
 
 	const token = ref('');
 	const output = ref('');
@@ -31,7 +31,7 @@
 	};
 
 	const updateSupplierName = newVal => {
-		console.log('supplier received an update');
+		console.log('supplier name received an update');
 		//supplier.value = newVal;
 	};
 
@@ -39,6 +39,12 @@
 		console.log('results received an update');
 		console.log(newVal)
 		results.value = newVal;
+		supplier.value = newVal[0];
+	};
+
+	const updateSupplier = newVal => {
+		console.log('supplier received an update');
+		supplier.value = newVal;
 	};
 	
 	// Load inputs from storage on component mount
@@ -69,23 +75,14 @@
 		<p>Welcome to your Electron application.</p>
 		<LoginButton />
 
-		<InputFields 
-		@update-results="updateResults" 
-		@update-supplier-name="updateSupplierName" 
-		@update-output="updateOutput" 
-		@update-token="updateToken" 
-		:token="token" />
+		<InputFields @update-results="updateResults" @update-supplier-name="updateSupplierName" @update-output="updateOutput" @update-token="updateToken" :token="token" />
 
 		<hr />
 		<h2>Output</h2>
 		<div id="output">{{ output }}</div>
 
-		<ResultsTable 
-		:token="token" 
-		:results="results" />
+		<ResultsTable :token="token" :results="results" />
 
-		<!--<SupplierInfo 
-		:token="token" 
-		:supplier="results[0].supplier" />-->
+		<SupplierDetails :token="token" :supplier="results" />
 	</div>
 </template>

@@ -9,7 +9,7 @@
 			<label for="supplier">Supplier</label>
 			<input type="text" name="supplierName" id="supplierName" v-model="supplierName" placeholder="Enter your supplier name" />
 		</div>
-		<button id="submit" @click="searchSuppliers">Submit</button>
+		<button id="submit" @click="searchSuppliers">Search</button>
 	</div>
 </template>
 
