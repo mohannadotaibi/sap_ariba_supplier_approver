@@ -15,39 +15,32 @@
 
 <script setup>
 	import { ref, watch, defineProps } from 'vue';
+	import {useStore} from '../../store/main';
+	import {storeToRefs} from 'pinia';
 
-	const props = defineProps({ token: String });
+    const store = useStore(); // store is now a reactive object
+	
+	const { apiToken, supplierNameSearchField } = storeToRefs(store);
 
-	const emit = defineEmits(['update-token', 'update-output', 'update-results', 'update-supplier-name']);
 
-	const token = ref(props.token);
-	const supplierName = ref('');
+	console.log('store',  apiToken.value, supplierNameSearchField.value)
+
+
+	const emit = defineEmits(['update-output', 'update-results']);
+
+	const token = ref(apiToken);
+	const supplierName = ref(supplierNameSearchField);
 	const results = ref([]);
 
-	const updateInputs = async () => {
-		console.log('getting inputs');
-		const inputs = await window.api.loadInputs();
-		if (inputs.token) {
-			token.value = inputs.token;
-		}
-		if (inputs.supplier) {
-			supplierName.value = inputs.supplier;
-		}
-
-		window.api.receiveToken(token_value => {
-			console.log('Token received:', token_value);
-			token.value = token_value;
-		});
-	};
-
-	updateInputs();
 
 	watch(token, newVal => {
-		emit('update-token', newVal);
+		console.log('token changed to ' + newVal)
+		store.setToken(newVal);
 	});
 
 	watch(supplierName, newVal => {
-		emit('update-supplier-name', newVal);
+		console.log('supplierName changed to ' + newVal)
+		store.setSupplierNameSearchField(newVal);
 	});
 
 	watch(results, newVal => {
@@ -56,11 +49,11 @@
 
 	const searchSuppliers = async () => {
 		const res = await window.api.searchSuppliers(supplierName.value, token.value);
-    console.log('got results', res)
+    	console.log('got results', res)
 		results.value = res;
 
 		if (res.length > 0) {
-      console.log('emitting results')
+      		console.log('emitting results')
 			emit('update-output', `${res.length} suppliers found`);
 			emit('update-results', res);
 		} else {

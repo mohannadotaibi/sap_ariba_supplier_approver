@@ -1,35 +1,12 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { searchSuppliers, approveVendor } from '../../api';
-import Storage from '../../utilities/storage';
 import logger from '../../utilities/logger';
 import { mainWindow } from './createWindow';
 
 // Initialize storage
-const myStorage = new Storage('../../data/data.json');
 
 // IPC event handlers
 
-// Save inputs event handler
-ipcMain.on('save-inputs', async (event, data) => {
-  try {
-    await myStorage.save(data);
-    console.log('Data written', data);
-  } catch (error) {
-    logger.error('Failed to save inputs:', error);
-    event.reply('save-inputs-reply', { error: 'Failed to save inputs' });
-  }
-});
-
-// Load inputs event handler
-ipcMain.on('load-inputs', async (event) => {
-  try {
-    const data = await myStorage.load();
-    event.reply('load-inputs-reply', JSON.parse(JSON.stringify(data))); // Ensure data is serializable
-  } catch (error) {
-    logger.error('Failed to load inputs:', error);
-    event.reply('load-inputs-reply', { error: 'Failed to load inputs' });
-  }
-});
 
 // Search suppliers event handler
 ipcMain.on('search-suppliers', async (event, supplier: string, token: string) => {

@@ -28,19 +28,21 @@
 
 <script setup>
 	import { ref, watch } from 'vue';
+	import {useStore} from '../../store/main';
+	import {storeToRefs} from 'pinia';
+
+    const store = useStore(); // store is now a reactive object
+	
+	const { apiToken } = storeToRefs(store);
 
 	const props = defineProps({
 		results: {
 			type: Array,
 			required: true
-		},
-		token: {
-			type: String,
-			required: true
 		}
 	});
 
-	console.log('props', props.results.value);
+	console.log('props results', props.results.value);
 
 	const results = ref(props.results);
 
@@ -51,7 +53,7 @@
 	);
 
 	const approveVendor = async taskId => {
-		const res = await window.api.approveVendor(taskId, props.token);
+		const res = await window.api.approveVendor(taskId, apiToken);
 		if (res.statusCode === 200) {
             console.log('Vendor approved:', res);
             alert('Approval successful!');

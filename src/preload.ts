@@ -45,17 +45,4 @@ contextBridge.exposeInMainWorld("api", {
             ipcRenderer.send('approve-vendor', taskId, token);
         }),
 
-
-    saveInputs: (data: any): void => {
-        ipcRenderer.send('save-inputs', data);
-    },
-
-
-    loadInputs: (): Promise<any> =>
-        new Promise((resolve) => {
-            ipcRenderer.once('load-inputs-reply', (event, data) => {
-                resolve(data);
-            });
-            ipcRenderer.send('load-inputs');
-        }),
 });

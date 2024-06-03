@@ -7,6 +7,6 @@
 	"tabWidth": 4,
 	"semi": true,
 	"bracketSpacing": true,
-    "bracketSameLine": true,
+	"bracketSameLine": true,
 	"vueIndentScriptAndStyle": true
 }

@@ -59,6 +59,7 @@
 
 			return qnaItem;
 		});
+		
 		console.log(supplier.value[0].questionnaire.responses.length)
 
 		supplier.value[0].questionnaire.responses.forEach(version => {
