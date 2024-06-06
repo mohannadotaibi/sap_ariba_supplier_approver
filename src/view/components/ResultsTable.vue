@@ -1,28 +1,31 @@
 <template>
-	<div id="results-table">
-		<table v-if="results.length" style="width: 100%; background-color: red">
-			<thead>
-				<tr>
-					<th>Supplier Name</th>
-					<th>ID</th>
-					<th>Profile</th>
-					<th>Actions</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr v-for="supplier in results" :key="supplier.supplier.smVendorId">
-					<td>{{ supplier.supplier.name }}</td>
-					<td>{{ supplier.supplier.smVendorId }}</td>
-					<td>
-						<a :href="'https://example.com/profile/' + supplier.supplier.smVendorId" target="_blank">Profile</a>
-					</td>
-					<td v-if="supplier.vendor.vendor.vendorInfo.registrationStatus === 'PendingApproval'">
-						<button @click="approveVendor(supplier.registrationTaskId)">Approve</button>
-					</td>
-					<td v-else>x</td>
-				</tr>
-			</tbody>
-		</table>
+	<div id="results-table" class="mb-2">
+		<div class="relative overflow-x-auto">
+			<table v-if="results.length" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+				<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+					<tr>
+						<th scope="col" class="px-6 py-3">Supplier Name</th>
+						<th scope="col" class="px-6 py-3">ID</th>
+						<th scope="col" class="px-6 py-3">Profile</th>
+						<th scope="col" class="px-6 py-3">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="supplier in results" :key="supplier.supplier.smVendorId" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+						<td class="px-6 py-4">{{ supplier.supplier.name }}</td>
+						<td class="px-6 py-4">{{ supplier.supplier.smVendorId }}</td>
+						<td class="px-6 py-4">
+							<a :href="'https://example.com/profile/' + supplier.supplier.smVendorId" target="_blank">Profile</a>
+						</td>
+						<td v-if="supplier.vendor.vendor.vendorInfo.registrationStatus === 'PendingApproval'"  class="px-6 py-4">
+							<button @click="approveVendor(supplier.registrationTaskId)">Approve</button>
+						</td>
+						<td v-else>x</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
 	</div>
 </template>
 

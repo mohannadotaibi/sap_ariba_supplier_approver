@@ -1,7 +1,46 @@
-import { commonHeaders } from './commonHeaders';
-import logger from '../../utilities/logger';
+import logger from '../utilities/logger';
 
 const baseURL = 'https://s1.mn2.ariba.com/SM/rest';
+
+const commonHeaders = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+  'X-Permitted-Cross-Domain-Policies': 'master-only',
+  'sec-ch-ua': '"Not/A)Brand";v="99", "Google Chrome";v="115", "Chromium";v="115"',
+  'sec-ch-ua-mobile': '?0',
+  'sec-ch-ua-platform': '"Windows"',
+};
+
+const commonParams: ParamsArray = {
+  activeType: 'active',
+  batchSize: 5,
+  categoryCode: [],
+  certCondition: {},
+  departmentCode: [],
+  filterOutDisqualifiedMatrix: false,
+  includeFacet: true,
+  includeLegalAddress: false,
+  includeMatrix: false,
+  includeOrderingAddresses: true,
+  includeRemittanceAddresses: true,
+  isBulkQualification: false,
+  isErpIntegrated: null,
+  isFactory: false,
+  isMQEnhancementFlow: false,
+  keyword: '',
+  mainVendorsOnly: true,
+  overallRiskScoreLevel: [],
+  preferredLevel: [],
+  purchasingUnitCodes: [],
+  qualificationStatus: [],
+  realmName: 'JCD',
+  regionCode: [],
+  registrationStatus: [],
+  registrationUpdateStatus: [],
+  searchQualificationAndRegistrationStatusAsAWhole: false,
+  smProcessStatus: [],
+  smVendorIds: [],
+  spqFilterAnswerRequests: [],
+};
 
 const refreshToken = async (token: string): Promise<string> => {
   const url = `${baseURL}/internal/refreshtoken?realm=JCD`;
@@ -26,24 +65,8 @@ const refreshToken = async (token: string): Promise<string> => {
   return token;
 };
 
-const safeStringify = (obj) => {
-  const cache = new Set();
-  const json = JSON.stringify(obj, (key, value) => {
-    if (typeof value === 'object' && value !== null) {
-      if (cache.has(value)) {
-        // Duplicate reference found, discard key
-        return;
-      }
-      // Store value in cache
-      cache.add(value);
-    }
-    return value;
-  });
-  cache.clear();
-  return json;
-};
 
-const makeRequest = async ( endpoint: string,  params: any,  token: string,  requestMethod: 'GET' | 'POST' = 'POST',  urlParams?: Record<string, string>): Promise<any> => {
+const makeRequest = async (endpoint: string, params: any, token: string, requestMethod: 'GET' | 'POST' = 'POST', urlParams?: Record<string, string>): Promise<any> => {
   let urlSearchParams: string;
 
   if (urlParams) {
@@ -88,4 +111,5 @@ const makeRequest = async ( endpoint: string,  params: any,  token: string,  req
   }
 };
 
-export { refreshToken, makeRequest };
+
+export { commonHeaders, commonParams, refreshToken, makeRequest };

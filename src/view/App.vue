@@ -4,7 +4,9 @@
 	import InputFields from './components/InputFields.vue';
 	import ResultsTable from './components/ResultsTable.vue';
 	import SupplierDetails from './components/SupplierDetails.vue';
+
 	import {useStore} from '../store/main';
+
 	const store = useStore();
 
 	const output = ref('');
@@ -20,7 +22,8 @@
 		console.log('results received an update');
 		console.log(newVal)
 		results.value = newVal;
-		supplier.value = newVal[0];
+		updateSupplier(supplier)
+		//supplier.value = newVal[0];
 	};
 
 	const updateSupplier = newVal => {
@@ -38,7 +41,7 @@
 </script>
 
 <template>
-	<div id="app" class="bg-slate-950 text-white h-screen">
+	<div id="app" class="bg-slate-950 text-white min-h-screen p-2">
 		<div class="container mx-auto">
 			<header class="flex justify-between mb-5">
 				<h1 class="text-3xl font-medium">Supprover!</h1>
@@ -46,8 +49,6 @@
 			</header>
 			
 			<p class="text-emerald-400">Welcome to SAP Ariba Supplier Approver. Click the login button below to get started.</p>
-			
-
 			<InputFields @update-results="updateResults" @update-output="updateOutput" />
 
 			<hr class="py-4" />
