@@ -1,6 +1,9 @@
 import logger from '../utilities/logger';
+import * as dotenv from 'dotenv';
+import fetch from 'node-fetch';
+dotenv.config();
 
-const baseURL = 'https://s1.mn2.ariba.com/SM/rest';
+const baseURL = `${process.env.API_BASE_URL}/SM/rest`;
 
 const commonHeaders = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
@@ -57,9 +60,10 @@ const refreshToken = async (token: string): Promise<string> => {
 
   if (response.ok) {
     token = response.headers.get('x-auth-token') || token;
-    logger.info('Got new token', token);
+    logger.info(`commons.ts: token refreshed: ${token}`);
   } else {
-    logger.error('Failed to refresh token');
+    logger.error('commons.ts: Failed to refresh token');
+    throw new Error('commons.ts: Failed to refresh token');
   }
 
   return token;
@@ -84,7 +88,7 @@ const makeRequest = async (endpoint: string, params: any, token: string, request
   };
   const paramsString = params ? JSON.stringify(params) : 'none provided';
 
-  logger.log('info', `Making request to ${url} with ${requestMethod} method and Params: ${paramsString}`);
+  logger.info(`commons.ts: Making request to ${url} with ${requestMethod} method and Params: ${paramsString}`);
 
   try {
     const response = await fetch(url, {
@@ -95,18 +99,18 @@ const makeRequest = async (endpoint: string, params: any, token: string, request
 
     if (!response.ok) {
       if (response.status === 401) {
-        logger.info('Token expired, refreshing...');
+        logger.info('commons.ts: Token expired, refreshing...');
         throw new Error('TokenExpired');
       } else {
         logger.info(response);
-        throw new Error(`Error in ${endpoint}: ${response.status} ${response.statusText}`);
+        throw new Error(`commons.ts: Error in ${endpoint}: ${response.status} ${response.statusText}`);
       }
     }
 
     const data = await response.json();
     return data;
   } catch (error) {
-    logger.error(`Error in ${endpoint}:`, error.message);
+    logger.error(`commons.ts: Error in ${endpoint}:`, error.message);
     throw error;
   }
 };

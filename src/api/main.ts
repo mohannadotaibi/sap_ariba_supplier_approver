@@ -1,3 +1,4 @@
+import { log } from 'winston';
 import logger from '../utilities/logger';
 import { makeRequest, commonParams } from './commons';
 
@@ -40,40 +41,56 @@ const getSupplierParams = (customParams: Partial<ParamsArray>): ParamsArray => {
 const getSupplierDetails = async (supplier: any, token: string): Promise<any> => {
     try {
 
-        logger.info('requesting supplier details' + supplier.smVendorId, token)
+        logger.info('api/main.ts: requesting supplier details' + supplier.smVendorId, token)
         const vendorDetails = await queryVendor(supplier.smVendorId, token);
 
-        logger.info('requesting registrations' + supplier.smVendorId, token)
+        logger.info('api/main.ts: requesting registrations' + supplier.smVendorId, token)
         const registrations = await queryRegistrations(supplier.smVendorId, token);
 
-        logger.info('requesting workspace' + registrations.registrations[0].statusId, token)
+        logger.info(`api/main.ts: requesting workspace ${registrations.registrations[0].statusId} ${token}`)
         const workspace = await getSMWorkspace(registrations.registrations[0].statusId, token);
-        console.log('got the results')
+        console.log('api/main.ts: got the results')
 
-        logger.info('requesting questionnaire' + workspace.workspace)
         const cleanWorkspaceInfo = cleanWorkspaceResponse(workspace.workspace);
-
-        logger.info('requesting tasks' + cleanWorkspaceInfo.tasks, token)
         const tasks = cleanWorkspaceInfo.tasks;
-        const registrationTaskId = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire').id;
-        const registrationDocumentId = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire').documentId;
+        
 
-        logger.info('requesting questionnaire' + registrationDocumentId, token)
-        const questionnaire = await deprecatedGetQuestionnaireIncludePrevious(registrationDocumentId, token);
+        /* Getting External Questionnaire */
+        console.log('api/main.ts: searching for external questionnaire')
+        
+        let externalRegistrationTaskId, externalRegistrationQuestionnaire, externalRegistrationDocumentId;
+        const externalRegistrationTask = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire');
+        
+        if (externalRegistrationTask != undefined) {
+            logger.info(`api/main.ts: requesting external questionnaire ${externalRegistrationDocumentId} ${token}`)
+            externalRegistrationTask.questionnaire = await deprecatedGetQuestionnaireIncludePrevious(externalRegistrationDocumentId, token);
+        }
+
+        /* Getting Internal Questionnaire */
+        console.log('api/main.ts: searching for internal questionnaire')
+        let internalRegistrationTaskId, internalRegistrationDocumentId, internalRegistrationQuestionnaire;
+
+        const internalRegistrationTask = tasks.find((task: any) => task.documentName === 'Internal Registration Questionnaire'); 
+
+        if (internalRegistrationTask != undefined) {
+            logger.info(`api/main.ts: requesting internal questionnaire ${internalRegistrationDocumentId} ${token}`)
+            internalRegistrationTask.questionnaire = await deprecatedGetQuestionnaireIncludePrevious(internalRegistrationDocumentId, token);
+        }
+
 
         return {
-            supplier,
+            supplier: supplier,
             vendor: vendorDetails,
-            registrations,
-            workspace,
-            cleanWorkspaceInfo,
+            registrations: registrations,
+            workspace: workspace,
+            cleanWorkspaceInfo: cleanWorkspaceInfo,
             tasks,
-            registrationTaskId,
-            questionnaire,
+            externalRegistrationTask:internalRegistrationTask,
+            internalRegistrationTask:internalRegistrationTask
         };
     } catch (error) {
-        logger.error('Error getting supplier details:', error);
-        throw new Error('Failed to get supplier details');
+        logger.error('api/main.ts: Error getting supplier details:', error);
+        throw new Error('api/main.ts: Failed to get supplier details');
     }
 
 };
@@ -91,8 +108,8 @@ const deprecatedGetQuestionnaireIncludePrevious = async (docId: string, token: s
         return makeRequest('deprecatedGetQuestionnaireIncludePrevious', null, token, 'GET', params);
 
     } catch (error) {
-        logger.error('Error getting questionnaire:', error);
-        throw new Error('Failed to get questionnaire');
+        logger.error('api/main.ts: Error getting questionnaire:', error);
+        throw new Error('api/main.ts: Failed to get questionnaire');
     }
 
 
@@ -110,15 +127,17 @@ export const searchSuppliers = async (customParams: Partial<ParamsArray>, token:
             );
             return supplierDetails;
         }
+
         return [];
 
-    } catch (error) {
-        logger.error('Error searching suppliers:', error);
+    } 
+    catch (error) {
+        logger.error('api/main.ts: Error searching suppliers:', error);
         if (error.message === "TokenExpired") {
             throw new Error('TokenExpired');
         }
         else {
-            throw new Error('Failed to search suppliers');
+            throw new Error('api/main.ts: Failed to search suppliers');
         }
     }
 
@@ -126,7 +145,7 @@ export const searchSuppliers = async (customParams: Partial<ParamsArray>, token:
 };
 
 export const approveVendor = async (taskId: string, token: string): Promise<any> => {
-    logger.info('Approving taskId ariba.ts', taskId);
+    logger.info('api/main.ts: Approving taskId ariba.ts', taskId);
 
     try {
 
@@ -137,8 +156,8 @@ export const approveVendor = async (taskId: string, token: string): Promise<any>
         return makeRequest('updateTask', params, token, 'POST');
 
     } catch (error) {
-        logger.error('Error approving vendor:', error);
-        throw new Error('Failed to approve vendor');
+        logger.error('api/main.ts: Error approving vendor:', error);
+        throw new Error('api/main.ts: Failed to approve vendor');
     }
 
 };

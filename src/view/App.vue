@@ -5,7 +5,7 @@
 	import ResultsTable from './components/ResultsTable.vue';
 	import SupplierDetails from './components/SupplierDetails.vue';
 
-	import {useStore} from '../store/main';
+	import { useStore } from '../store/main';
 
 	const store = useStore();
 
@@ -14,12 +14,12 @@
 	const supplier = ref(null);
 
 	const updateOutput = newVal => {
-		console.log('output received an update');
+		console.log('App.vue: output received an update');
 		output.value = newVal;
 	};
 
 	const updateResults = newVal => {
-		console.log('results received an update');
+		console.log('App.vue: results received an update');
 		console.log(newVal)
 		results.value = newVal;
 		updateSupplier(supplier)
@@ -27,13 +27,13 @@
 	};
 
 	const updateSupplier = newVal => {
-		console.log('supplier received an update');
+		console.log('App.vue: supplier received an update');
 		supplier.value = newVal;
 	};
 	 
 	window.api.receiveToken((token_value: string) => {
-		console.log('Token received From Login Window:', token_value);
-		console.log('saving to local storage');
+		console.log('App.vue: Token received From Login Window:', token_value);
+		console.log('App.vue: saving to local storage');
 		store.setToken(token_value);
 	});
 

@@ -1,7 +1,11 @@
 import { app, BrowserWindow, ipcMain, Notification } from 'electron';
+import { useStore } from './store/main';
 import { searchSuppliers, approveVendor } from './api/main';
 import logger from './utilities/logger';
 import path from 'path';
+import { refreshToken } from './api/commons';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -39,8 +43,10 @@ ipcMain.on('search-suppliers', async (event, supplier: string, token: string) =>
   try {
     const response = await searchSuppliers({ keyword: supplier }, token);
     event.reply('search-suppliers-reply', response);
-  } catch (error) {
-    logger.error('Error searching suppliers from ipc main:', error);
+
+  } 
+  catch (error) {
+    logger.error('main.ts: Error searching suppliers from ipc main:', error);
     if (error.message === 'TokenExpired') {
       new Notification({
         title: 'Session Expired',
@@ -59,14 +65,14 @@ ipcMain.on('search-suppliers', async (event, supplier: string, token: string) =>
 
 // Approve vendor event handler
 ipcMain.on('approve-vendor', async (event, taskId: string, token: string) => {
-  logger.info('Approve vendor called with:', taskId, token);
+  logger.info('main.ts: Approve vendor called with:', taskId, token);
 
   try {
     const approvedVendor = await approveVendor(taskId, token);
-    logger.info('Approved vendor:', approvedVendor);
+    logger.info('main.ts: Approved vendor:', approvedVendor);
     event.reply('approve-vendor-reply', approvedVendor);
   } catch (error) {
-    logger.error('Error approving vendor:', error);
+    logger.error('main.ts: Error approving vendor:', error);
     event.reply('approve-vendor-reply', { error: 'Failed to approve vendor' });
   }
 });
@@ -84,14 +90,14 @@ ipcMain.on('open-login-window', () => {
       webSecurity: true,
     },
   });
-  loginWindow.loadURL('http://jcd.sourcing.mn2.ariba.com/');
+  loginWindow.loadURL(process.env.LOGIN_URL);
 
   loginWindow.webContents.session.webRequest.onHeadersReceived(
-    { urls: ['*://s1.mn2.ariba.com/*'] },
+    { urls: [`${process.env.API_BASE_URL}/*`] },
     (details, callback) => {
       if (details.responseHeaders['x-auth-token']) {
         const authToken = details.responseHeaders['x-auth-token'][0];
-        console.log('x-auth-token:', authToken);
+        console.log('main.ts: x-auth-token:', authToken);
         mainWindow?.webContents.send('token-received', authToken);
         loginWindow?.close();
       }
@@ -103,6 +109,17 @@ ipcMain.on('open-login-window', () => {
     loginWindow = null;
   });
 });
+
+ipcMain.on('refresh-token', async (event, token: string) => {
+  try { 
+    const newToken = await refreshToken(token);
+    event.reply('token-refreshed', newToken);
+  } catch (error) {
+    logger.error('main.ts: Error refreshing token:', error);
+    event.reply('token-refreshed', { error: 'Failed to refresh token' });
+  }
+}
+);
 
 // Quit the app when all windows are closed, except on macOS.
 app.on('window-all-closed', () => {
@@ -119,7 +136,13 @@ app.on('activate', () => {
 });
 
 // Create the main application window when Electron is ready.
-app.on('ready', createWindow);
+app.on('ready', () =>{
+  createWindow();
+  logger.info('main.ts: App ready');
+});
+
+
+  
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {

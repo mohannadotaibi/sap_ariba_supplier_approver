@@ -44,7 +44,7 @@
 
 	const { apiToken, supplierNameSearchField } = storeToRefs(store);
 
-	console.log('store', apiToken.value, supplierNameSearchField.value);
+	console.log('InputFields.vue: store', apiToken.value, supplierNameSearchField.value);
 
 	const emit = defineEmits(['update-output', 'update-results']);
 
@@ -55,17 +55,17 @@
 	const results = ref([]);
 
 	watch(token, newVal => {
-		console.log('token changed to ' + newVal);
+		console.log('InputFields.vue: token changed to ' + newVal);
 		store.setToken(newVal);
 	});
 
 	watch(supplierName, newVal => {
-		console.log('supplierName changed to ' + newVal);
+		console.log('InputFields.vue: supplierName changed to ' + newVal);
 		store.setSupplierNameSearchField(newVal);
 	});
 
 	watch(results, newVal => {
-		console.log('emitting update-results')
+		console.log('InputFields.vue: emitting update-results')
 		emit('update-results', newVal);
 	});
 
@@ -73,18 +73,18 @@
 		try {
 			const res = await window.api.searchSuppliers(supplierName.value, token.value);
 
-			console.log('got results', res);
+			console.log('InputFields.vue: got results', res);
 			results.value = res;
 
 			if (res.length > 0) {
-				console.log('emitting results');
+				console.log('InputFields.vue: emitting results');
 				emit('update-output', `${res.length} suppliers found`);
 				emit('update-results', res);
 			} else {
 				emit('update-output', 'No suppliers found or error in response');
 			}
 		} catch (error) {
-			console.log('error from rendere', error);	
+			console.log('InputFields.vue: error from rendere', error);	
 		}
 		
 	};

@@ -49,6 +49,7 @@
     "@vue/runtime-core": "^3.4.27",
     "@vue/runtime-dom": "^3.4.27",
     "@vue/shared": "^3.4.27",
+    "dotenv": "^16.4.5",
     "electron-squirrel-startup": "^1.0.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.27",

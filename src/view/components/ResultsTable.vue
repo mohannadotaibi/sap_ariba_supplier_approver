@@ -6,21 +6,22 @@
 					<tr>
 						<th scope="col" class="px-6 py-3">Supplier Name</th>
 						<th scope="col" class="px-6 py-3">ID</th>
-						<th scope="col" class="px-6 py-3">Profile</th>
-						<th scope="col" class="px-6 py-3">Actions</th>
+						<th scope="col" class="px-6 py-3 text-center">Internal</th>
+						<th scope="col" class="px-6 py-3 text-center">External</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr v-for="supplier in results" :key="supplier.supplier.smVendorId" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
 						<td class="px-6 py-4">{{ supplier.supplier.name }}</td>
 						<td class="px-6 py-4">{{ supplier.supplier.smVendorId }}</td>
-						<td class="px-6 py-4">
-							<a :href="'https://example.com/profile/' + supplier.supplier.smVendorId" target="_blank">Profile</a>
+						<td v-if="supplier.internalRegistrationTask.canApprove"  class="px-6 py-4 text-center">
+							<button @click="approveVendor(supplier.internalRegistrationTask.id)">Approve</button>
 						</td>
-						<td v-if="supplier.vendor.vendor.vendorInfo.registrationStatus === 'PendingApproval'"  class="px-6 py-4">
-							<button @click="approveVendor(supplier.registrationTaskId)">Approve</button>
+						<td v-else class=" text-center">x</td>
+						<td v-if="supplier.externalRegistrationTask.canApprove"  class="px-6 py-4 text-center">
+							<button @click="approveVendor(supplier.externalRegistrationTask.id)">Approve</button>
 						</td>
-						<td v-else>x</td>
+						<td v-else class=" text-center">x</td>
 					</tr>
 				</tbody>
 			</table>
@@ -45,25 +46,27 @@
 		}
 	});
 
-	console.log('props results', props.results.value);
+	console.log('ResultsTable.vue: props results', props.results.value);
 
 	const results = ref(props.results);
 
 	watch(() => props.results, newResults => {
-			console.log('ResultsTable received new results:', newResults);
+			console.log('ResultsTable.vue: ResultsTable received new results:', newResults);
 			results.value = newResults;
 		}
 	);
 
 	const approveVendor = async taskId => {
-		const res = await window.api.approveVendor(taskId, apiToken);
+		console.log('ResultsTable.vue: Approving vendor:', taskId, apiToken.value);
+		const res = await window.api.approveVendor(taskId, apiToken.value);
+		console.log('ResultsTable.vue: already called')
 		if (res.statusCode === 200) {
-            console.log('Vendor approved:', res);
-            alert('Approval successful!');
+            console.log('ResultsTable.vue: Vendor approved:', res);
+            alert('ResultsTable.vue: Approval successful!');
             // Do something with the vendor data
         } else {
-            console.error('Approval failed:', res.message);
-            alert('Approval failed!');
+            console.error('ResultsTable.vue: Approval failed:', res.message);
+            alert('ResultsTable.vue: Approval failed!');
         }
 	};
 </script>
