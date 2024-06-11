@@ -8,26 +8,24 @@
 	import { useStore } from '../store/main';
 
 	const store = useStore();
-
 	const output = ref('');
 	const results = ref([]);
-	const supplier = ref(null);
+	const supplier = ref({});
 
 	const updateOutput = newVal => {
-		console.log('App.vue: output received an update');
+		console.log('App.vue: output received an update', newVal);
 		output.value = newVal;
 	};
 
 	const updateResults = newVal => {
-		console.log('App.vue: results received an update');
-		console.log(newVal)
-		results.value = newVal;
-		updateSupplier(supplier)
+		console.log('App.vue: results received an update', newVal);
+		results.value = newVal; 
+		updateSupplier(newVal[0])
 		//supplier.value = newVal[0];
 	};
 
-	const updateSupplier = newVal => {
-		console.log('App.vue: supplier received an update');
+	const updateSupplier = (newVal) => {
+		console.log('App.vue: supplier received an update', newVal);
 		supplier.value = newVal;
 	};
 	 
@@ -52,12 +50,21 @@
 			<InputFields @update-results="updateResults" @update-output="updateOutput" />
 
 			<hr class="py-4" />
-			<h2 class="font-bold text-2xl">Output</h2>
-			<div id="output">{{ output }}</div>
+			<div class="flex flex-column justify-between mb-5">
+				<h2 class="font-bold text-2xl">Output</h2>
+				<div id="output">{{ output }}</div>
+			</div>
+			
 
-			<ResultsTable :results="results" />
+			<div class="mb-6">
+				<ResultsTable :results="results" />
+			</div>
+			
 
-			<SupplierDetails :supplier="results" />
+			<div class="mb-6">
+				<SupplierDetails :supplier="supplier" />
+			</div>
+			
 		</div>
 		
 	</div>

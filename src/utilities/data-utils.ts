@@ -1,81 +1,40 @@
-export const combineQuestionsAndAnswers = (questions, answers) =>{
+export const combineQuestionsAndAnswers = (questions, answers) => {
+    console.log('Combining questions with answers');
 
-    console.log('data-utils.ts');
-    // 
+    const answerMap = new Map(answers.map(answer => [answer.externalSystemCorrelationId, answer]));
 
-    let results = [];
+    const processItems = (items) => {
+        return items.map(item => {
+            const newItem = {
+                question: item.label,
+                isSection: item.section,
+                answerType: item.answerType,
+                externalSystemCorrelationId: item.externalSystemCorrelationId,
+                answer: answerMap.has(item.externalSystemCorrelationId) ? mapAnswer(item, answerMap.get(item.externalSystemCorrelationId)) : null,
+                qna: item.items ? processItems(item.items) : []
+            };
+            return newItem;
+        });
+    };
 
-    // fill the results array with questions
-    results = questions.map(item => {
-        // preparing the structure only
-        const qnaItem = {
-            question: item.label,
-            isSection: item.section,
-            answerType: item.answerType,
-            externalSystemCorrelationId: item.externalSystemCorrelationId,
-            qna: []
-        };
-
-        const processSubItems = items => {
-            return items.map(subItem => {
-                const subQnaItem = {
-                    question: subItem.label,
-                    isSection: subItem.section,
-                    answerType: subItem.answerType,
-                    externalSystemCorrelationId: subItem.externalSystemCorrelationId,
-                    answer: '',
-                    qna: []
-                };
-                if (subItem.section) {
-                    subQnaItem.qna = processSubItems(subItem.items); // Recursively process nested sections
-                }
-                return subQnaItem;
-            });
-        };
-
-        if (item.section) {
-            qnaItem.qna = processSubItems(item.items);
+    const mapAnswer = (item, answer) => {
+        switch (item.answerType) {
+            case 'Attachment':
+                return answer.attachmentAnswer;
+            case 'Address':
+                return `${answer.addressAnswer.street}, ${answer.addressAnswer.city}, ${answer.addressAnswer.state}, ${answer.addressAnswer.postalCode}, ${answer.addressAnswer.countryCode}`;
+            case 'CommodityType':
+                return answer.multiValueAnswer;
+            case 'BankAccount':
+                return Object.entries(answer.bankAccountAnswer).map(([key, value]) => `${key}: ${value}`).join(", ");
+            default:
+                return answer.answer;
         }
+    };
 
-        return qnaItem;
-    });
+    return processItems(questions);
+};
 
-    console.log('SupplierDetails.vue: ', answers.length);
-
-    // Answer the qusetions
-    answers.forEach(response => {
-        const findItem = (items, externalSystemCorrelationId) => {
-            for (const item of items) {
-                if (item.isSection) {
-                    const foundSubItem = findItem(item.qna, externalSystemCorrelationId);
-                    if (foundSubItem) return foundSubItem;
-                } else if (item.externalSystemCorrelationId === externalSystemCorrelationId) {
-                    return item;
-                }
-            }
-            return null;
-        };
-
-        const item = findItem(questions, response.externalSystemCorrelationId);
-
-        if (item) {
-            if (item.answerType === 'Attachment') {
-                item.answer = response.attachmentAnswer;
-            } else if (item.answerType === 'Address') {
-                item.answer = response.addressAnswer;
-            } else if (item.answerType === 'CommodityType') {
-                item.answer = response.multiValueAnswer;
-            } else if (item.answerType === 'BankAccount') {
-                console.log('data-utils.ts: answer type bank account detected', response.bankAccountAnswer);
-                item.answer = response.bankAccountAnswer;
-            } else {
-                item.answer = response.answer;
-            }
-        }
-    });
-
-    return results;
-}
 
 
 export const humanFileSize = (bytes, si = false, dp = 1) => {

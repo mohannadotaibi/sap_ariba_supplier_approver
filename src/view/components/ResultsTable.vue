@@ -1,7 +1,7 @@
 <template>
 	<div id="results-table" class="mb-2">
 		<div class="relative overflow-x-auto">
-			<table v-if="results.length" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+			<table v-if="results.length > 0" class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 				<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 					<tr>
 						<th scope="col" class="px-6 py-3">Supplier Name</th>
@@ -63,7 +63,6 @@
 		if (res.statusCode === 200) {
             console.log('ResultsTable.vue: Vendor approved:', res);
             alert('ResultsTable.vue: Approval successful!');
-            // Do something with the vendor data
         } else {
             console.error('ResultsTable.vue: Approval failed:', res.message);
             alert('ResultsTable.vue: Approval failed!');

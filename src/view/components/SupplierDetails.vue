@@ -1,6 +1,6 @@
 <template>
 	<div id="supplier-info">
-		<div v-if="supplier.length > 0" class="relative overflow-x-auto">
+		<div v-if="supplier?.externalRegistrationTask?.questionnaire?.status !=='ERROR'" class="relative overflow-x-auto">
 			<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
 				<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 					<tr>
@@ -27,8 +27,7 @@
 												<span class="ps-2">(size: {{ humanFileSize(nestedItem.answer.fileSize) }})</span>
 											</td>
 											<td v-else-if="nestedItem.answerType === 'Address'" class="px-6 py-4">
-												{{ nestedItem.answer.street }}, {{ nestedItem.answer.city }}, {{ nestedItem.answer.state }}, {{ nestedItem.answer.postalCode }},
-												{{ nestedItem.answer.countryCode }}
+												{{ nestedItem.answer }}
 											</td>
 											<td v-else-if="nestedItem.answerType === 'CommodityType'" class="px-6 py-4">
 												<ul>
@@ -91,7 +90,6 @@
 	import { combineQuestionsAndAnswers, humanFileSize } from '../../utilities/data-utils';
 
 	const props = defineProps({
-		token: String,
 		supplier: Object
 	});
 
@@ -99,25 +97,25 @@
 
 	const qna = ref([]);
 
-	const updateQNA = ()=> {
-		const questions = supplier.value[0].questionnaire.items;
-		const latestVersionIndex = supplier.value[0].questionnaire.responses.versions.length - 1;
-		const answers = supplier.value[0].questionnaire.responses.versions[latestVersionIndex];
+	const updateQNA = () => {
+		const questions = supplier.value.externalRegistrationTask.questionnaire.items;
+		const latestVersionIndex = supplier.value.externalRegistrationTask.questionnaire.responses.length - 1;
+		const answers = supplier.value.externalRegistrationTask.questionnaire.responses[latestVersionIndex].answers;
 		// Combine questions and answers
 		qna.value = combineQuestionsAndAnswers(questions, answers);
 		console.log('SupplierDetails.vue: qna', qna.value);
 	}
 	
 
-	watch(supplier, newVal => {
-		console.log('SupplierDetails.vue: supplier updated');
-	});
-
 	watch(() => props.supplier,
 		(newResults) => {
-			console.log('SupplierDetails.vue: Supplier Details received new results:', newResults);
-			supplier.value = newResults;
-			updateQna(newResults);
+			try {
+				console.log('SupplierDetails.vue: Supplier Details received new results:', newResults);
+				supplier.value = newResults;
+				updateQNA();
+			} catch (error) {
+				console.error(error)
+			}
 		}
 	);
 </script>

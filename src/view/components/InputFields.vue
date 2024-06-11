@@ -70,6 +70,9 @@
 	});
 
 	const searchSuppliers = async () => {
+		emit('update-output', "Searching");
+		emit('update-results', []);
+
 		try {
 			const res = await window.api.searchSuppliers(supplierName.value, token.value);
 

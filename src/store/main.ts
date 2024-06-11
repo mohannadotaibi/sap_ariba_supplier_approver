@@ -29,7 +29,7 @@ export const useStore = defineStore('main', {
         },
         async refreshAuthentication() {
             if (!this.apiToken) {
-                console.log('No token available');
+                console.log('store/main.ts: No token available');
                 this.setIsAuthenticated(false);
                 return;
             }
@@ -38,12 +38,12 @@ export const useStore = defineStore('main', {
                 // @ts-expect-error some error
                 const refreshResult = await window.api.refreshToken(this.apiToken);
                 if (refreshResult.error) {
-                    throw new Error('Authentication failed due to known error');
+                    throw new Error('store/main.ts: Authentication failed due to known error');
                 }
                 this.setToken(refreshResult);
                 this.setIsAuthenticated(true);
             } catch (error) {
-                console.error('Authentication refresh error:', error.message);
+                console.error('store/main.ts: Authentication refresh error:', error.message);
                 this.setToken(null);
                 this.setIsAuthenticated(false);
             }

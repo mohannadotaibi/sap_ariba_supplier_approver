@@ -58,23 +58,21 @@ const getSupplierDetails = async (supplier: any, token: string): Promise<any> =>
         /* Getting External Questionnaire */
         console.log('api/main.ts: searching for external questionnaire')
         
-        let externalRegistrationTaskId, externalRegistrationQuestionnaire, externalRegistrationDocumentId;
         const externalRegistrationTask = tasks.find((task: any) => task.documentName === 'Supplier Registration Questionnaire');
         
         if (externalRegistrationTask != undefined) {
-            logger.info(`api/main.ts: requesting external questionnaire ${externalRegistrationDocumentId} ${token}`)
-            externalRegistrationTask.questionnaire = await deprecatedGetQuestionnaireIncludePrevious(externalRegistrationDocumentId, token);
+            logger.info(`api/main.ts: requesting external questionnaire ${externalRegistrationTask.documentId} ${token}`)
+            externalRegistrationTask.questionnaire = await deprecatedGetQuestionnaireIncludePrevious(externalRegistrationTask.documentId, token);
         }
 
         /* Getting Internal Questionnaire */
         console.log('api/main.ts: searching for internal questionnaire')
-        let internalRegistrationTaskId, internalRegistrationDocumentId, internalRegistrationQuestionnaire;
 
         const internalRegistrationTask = tasks.find((task: any) => task.documentName === 'Internal Registration Questionnaire'); 
 
         if (internalRegistrationTask != undefined) {
-            logger.info(`api/main.ts: requesting internal questionnaire ${internalRegistrationDocumentId} ${token}`)
-            internalRegistrationTask.questionnaire = await deprecatedGetQuestionnaireIncludePrevious(internalRegistrationDocumentId, token);
+            logger.info(`api/main.ts: requesting internal questionnaire ${internalRegistrationTask.documentId} ${token}`)
+            internalRegistrationTask.questionnaire = await deprecatedGetQuestionnaireIncludePrevious(internalRegistrationTask.documentId, token);
         }
 
 
@@ -85,8 +83,8 @@ const getSupplierDetails = async (supplier: any, token: string): Promise<any> =>
             workspace: workspace,
             cleanWorkspaceInfo: cleanWorkspaceInfo,
             tasks,
-            externalRegistrationTask:internalRegistrationTask,
-            internalRegistrationTask:internalRegistrationTask
+            externalRegistrationTask: externalRegistrationTask,
+            internalRegistrationTask: internalRegistrationTask
         };
     } catch (error) {
         logger.error('api/main.ts: Error getting supplier details:', error);
