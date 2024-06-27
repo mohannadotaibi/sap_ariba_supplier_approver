@@ -19,23 +19,21 @@
 
 	const updateResults = newVal => {
 		console.log('App.vue: results received an update', newVal);
-		results.value = newVal; 
-		updateSupplier(newVal[0])
+		results.value = newVal;
+		updateSupplier(newVal[0]);
 		//supplier.value = newVal[0];
 	};
 
-	const updateSupplier = (newVal) => {
+	const updateSupplier = newVal => {
 		console.log('App.vue: supplier received an update', newVal);
 		supplier.value = newVal;
 	};
-	 
+
 	window.api.receiveToken((token_value: string) => {
 		console.log('App.vue: Token received From Login Window:', token_value);
 		console.log('App.vue: saving to local storage');
 		store.setToken(token_value);
 	});
-
-
 </script>
 
 <template>
@@ -45,7 +43,7 @@
 				<h1 class="text-3xl font-medium">Supprover!</h1>
 				<LoginButton />
 			</header>
-			
+
 			<p class="text-emerald-400">Welcome to SAP Ariba Supplier Approver. Click the login button below to get started.</p>
 			<InputFields @update-results="updateResults" @update-output="updateOutput" />
 
@@ -54,18 +52,14 @@
 				<h2 class="font-bold text-2xl">Output</h2>
 				<div id="output">{{ output }}</div>
 			</div>
-			
 
 			<div class="mb-6">
 				<ResultsTable :results="results" />
 			</div>
-			
 
 			<div class="mb-6">
 				<SupplierDetails :supplier="supplier" />
 			</div>
-			
 		</div>
-		
 	</div>
 </template>

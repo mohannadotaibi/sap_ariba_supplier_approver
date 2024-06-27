@@ -3,3 +3,4 @@ data.json
 src/index.css
 src/view/style.css
 bun.lockb
+src/api/docs/*.json

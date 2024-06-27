@@ -1,32 +1,36 @@
 import { defineStore } from 'pinia';
 
 export const useStore = defineStore('main', {
-    state: () => {
+    state: (): State => {
         return {
-            apiToken: JSON.parse(localStorage.getItem("apiToken")) || null,
-            supplierNameSearchField: JSON.parse(localStorage.getItem("supplierNameSearchField")) || null,
-            isAuthenticated: false,
-        }
+            apiToken: JSON.parse(localStorage.getItem("apiToken") || 'null'),
+            supplierNameSearchField: JSON.parse(localStorage.getItem("supplierNameSearchField") || 'null'),
+            isAuthenticated: JSON.parse(localStorage.getItem("isAuthenticated") || 'false'),
+        };
     },
+
     actions: {
-        setToken(token) {
+        setToken(token: string) {
             this.apiToken = token;
-            this.presistToLocalStorage();
+            this.persistToLocalStorage();
         },
+        
         setIsAuthenticated(isAuthenticated: boolean) {
             this.isAuthenticated = isAuthenticated;
-            this.presistToLocalStorage();
-        },
-        setSupplierNameSearchField(searchField: string) {
-            this.supplierNameSearchField = searchField;
-            this.presistToLocalStorage(); 
+            this.persistToLocalStorage();
         },
 
-        presistToLocalStorage() {
+        setSupplierNameSearchField(searchField: string) {
+            this.supplierNameSearchField = searchField;
+            this.persistToLocalStorage();
+        },
+
+        persistToLocalStorage() {
             localStorage.setItem("apiToken", JSON.stringify(this.apiToken));
             localStorage.setItem("supplierNameSearchField", JSON.stringify(this.supplierNameSearchField));
             localStorage.setItem("isAuthenticated", JSON.stringify(this.isAuthenticated));
         },
+
         async refreshAuthentication() {
             if (!this.apiToken) {
                 console.log('store/main.ts: No token available');
@@ -35,19 +39,20 @@ export const useStore = defineStore('main', {
             }
 
             try {
-                // @ts-expect-error some error
+                // @ts-expect-error refreshToken
                 const refreshResult = await window.api.refreshToken(this.apiToken);
                 if (refreshResult.error) {
                     throw new Error('store/main.ts: Authentication failed due to known error');
                 }
                 this.setToken(refreshResult);
                 this.setIsAuthenticated(true);
-            } catch (error) {
+            } catch (error: any) {
                 console.error('store/main.ts: Authentication refresh error:', error.message);
                 this.setToken(null);
                 this.setIsAuthenticated(false);
             }
         },
+        
         async checkAuthenticated() {
             await this.refreshAuthentication();
 
