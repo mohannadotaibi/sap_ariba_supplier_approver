@@ -130,8 +130,7 @@ ipcMain.on('open-login-window', () => {
 ipcMain.on('refresh-token', async (event, token: string) => {
   try {
     const ariba = new AribaRestApi(token);
-    await ariba.refreshToken();
-    const newToken = ariba.getToken();
+    const newToken = await ariba.getFreshToken();
     event.reply('token-refreshed', newToken);
   } catch (error) {
     handleError(error, 'Failed to refresh token', event, 'token-refreshed');

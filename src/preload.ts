@@ -2,8 +2,8 @@ import { ipcRenderer, contextBridge } from "electron";
 
 // Define types for resolvers
 type PromiseResolver<T> = (value: T) => void;
-type SupplierResponse = any; // Define this type based on the actual response structure
-type VendorResponse = any; // Define this type based on the actual response structure
+type SupplierResponse = any;
+type VendorResponse = any;
 
 let searchSuppliersPromiseResolver: PromiseResolver<SupplierResponse> | null = null;
 let approveVendorPromiseResolver: PromiseResolver<VendorResponse> | null = null;
@@ -13,7 +13,7 @@ let refreshTokenPromiseResolver: PromiseResolver<string> | null = null;
 ipcRenderer.on('search-suppliers-reply', (event, res: SupplierResponse) => {
     if (searchSuppliersPromiseResolver) {
         searchSuppliersPromiseResolver(res);
-        searchSuppliersPromiseResolver = null; // Clear the resolver
+        searchSuppliersPromiseResolver = null;
     }
 });
 
@@ -28,7 +28,7 @@ ipcRenderer.on('approve-vendor-reply', (event, res: VendorResponse) => {
 ipcRenderer.on('token-refreshed', (event, token: string) => {
     if (refreshTokenPromiseResolver) {
         refreshTokenPromiseResolver(token);
-        refreshTokenPromiseResolver = null; // Clear the resolver
+        refreshTokenPromiseResolver = null;
     }
 });
 
@@ -37,14 +37,14 @@ contextBridge.exposeInMainWorld("api", {
     searchSuppliers: (supplier: string, token: string): Promise<SupplierResponse> => {
         return new Promise((resolve) => {
             searchSuppliersPromiseResolver = resolve;
-            ipcRenderer.send('search-suppliers', supplier, token);
+            ipcRenderer.send('search-suppliers', { supplier, token });
         });
     },
 
     approveVendor: (taskId: string, token: string): Promise<VendorResponse> => {
         return new Promise((resolve) => {
             approveVendorPromiseResolver = resolve;
-            ipcRenderer.send('approve-vendor', taskId, token);
+            ipcRenderer.send('approve-vendor', { taskId, token });
         });
     },
 

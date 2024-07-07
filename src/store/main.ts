@@ -3,8 +3,8 @@ import { defineStore } from 'pinia';
 export const useStore = defineStore('main', {
     state: (): State => {
         return {
-            apiToken: JSON.parse(localStorage.getItem("apiToken") || 'null'),
-            supplierNameSearchField: JSON.parse(localStorage.getItem("supplierNameSearchField") || 'null'),
+            apiToken: localStorage.getItem("apiToken"), // No need to parse as it is a string
+            supplierNameSearchField: localStorage.getItem("supplierNameSearchField"), // No need to parse as it is a string
             isAuthenticated: JSON.parse(localStorage.getItem("isAuthenticated") || 'false'),
         };
     },
@@ -26,8 +26,8 @@ export const useStore = defineStore('main', {
         },
 
         persistToLocalStorage() {
-            localStorage.setItem("apiToken", JSON.stringify(this.apiToken));
-            localStorage.setItem("supplierNameSearchField", JSON.stringify(this.supplierNameSearchField));
+            localStorage.setItem("apiToken", this.apiToken); // No need to stringify as it is a string
+            localStorage.setItem("supplierNameSearchField", this.supplierNameSearchField); // No need to stringify as it is a string
             localStorage.setItem("isAuthenticated", JSON.stringify(this.isAuthenticated));
         },
 

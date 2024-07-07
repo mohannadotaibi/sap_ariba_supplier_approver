@@ -201,7 +201,12 @@ export class AribaRestApi {
 		return this.token;
 	}
 
-	async refreshToken() {
+	async getFreshToken(): Promise<string> { // gpt-modified: Added public method to get a fresh token
+        await this.refreshToken(); // gpt-modified: Refresh token internally
+        return this.token; // gpt-modified: Return the new token
+    }
+
+	private async refreshToken() {
 		try {
 			const response = await fetch(`${this.baseURL}/internal/refreshtoken`, {
 				method: 'GET',
