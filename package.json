@@ -6,10 +6,15 @@
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
-    "package": "electron-forge package",
+    "package": "node loadEnv.js && electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx ."
+  },
+  "build": {
+    "extraResources": [
+      ".env"
+    ]
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.4.0",
